@@ -1,93 +1,1922 @@
-NEARBY FUTURE · CONTENT TRANSLATOR
-BETA
-PROVIDER
-    Anthropic (Claude)
-    OpenAI (GPT)
-    Google (Gemini)
-    xAI (Grok)
-  
-API KEY
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nearby Future — Content Translator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Feijoa via system fallback — closest available Google Font approximation */
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,500&display=swap');
+
+  :root {
+    /* Brand palette from color sheet */
+    --white:       #FFFFFF;
+    --off-white:   #F7F5F2;
+    --ink:         #0A0A0A;
+    --ink-mid:     #2A2A2A;
+    --muted:       #888888;
+    --muted-light: #BBBBBB;
+    --rule:        #E0DDD8;
+    --rule-dark:   #C8C4BE;
+
+    /* Brand accent colors — from palette */
+    --teal:        #4A8FA0;
+    --teal-light:  #7BB5C4;
+    --teal-bg:     #EBF4F7;
+    --sage:        #7BA882;
+    --sage-light:  #A8C8AC;
+    --sage-bg:     #EFF6F0;
+    --sand:        #C4A882;
+    --amber:       #D4962A;
+    --rose:        #D47080;
+
+    /* UI */
+    --accent:      var(--teal);
+    --accent-bg:   var(--teal-bg);
+    --r:           3px;
+    --r2:          6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter Tight', 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Feijoa — use Playfair Display as the closest available web serif */
+  .feijoa {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-weight: 500;
+  }
+
+  /* ─── HEADER ───────────────────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    height: 36px;
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .logo-mark { width: 44px; height: 30px; flex-shrink: 0; }
+  .logo-wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1;
+  }
+  .logo-wordmark strong {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  .logo-wordmark span {
+    font-size: 0.58rem;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .badge {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--rule-dark);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* ─── API KEY BAR ──────────────────────────────────────── */
+  .key-bar {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .key-label {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .provider-select {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    padding: 2px 18px 2px 7px;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.14s;
+  }
+  .provider-select:focus { border-color: var(--teal); }
+  .provider-select option { background: white; }
+
+  .key-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 300px;
+    min-width: 140px;
+  }
+  .key-input {
+    width: 100%;
+    padding: 3px 24px 3px 7px;
+    font-family: 'Inter Tight', monospace;
+    font-size: 0.68rem;
+    background: var(--white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    color: var(--ink-mid);
+    outline: none;
+    transition: border-color 0.14s;
+  }
+  .key-input:focus { border-color: var(--teal); }
+  .key-input::placeholder { color: var(--muted-light); }
+  .key-eye {
+    position: absolute;
+    right: 6px;
+    background: none;
+    border: none;
+    color: var(--muted-light);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    transition: color 0.14s;
+  }
+  .key-eye:hover { color: var(--ink); }
+  .key-eye svg { width: 11px; height: 11px; }
+
+  .key-status {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .key-status.ok    { color: var(--sage); }
+  .key-status.empty { color: var(--muted-light); }
+  .key-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+  .key-link {
+    margin-left: auto;
+    font-size: 0.62rem;
+    color: var(--muted);
+  }
+  .key-link a { color: var(--teal); text-decoration: none; transition: color 0.14s; }
+  .key-link a:hover { color: var(--ink); text-decoration: underline; }
+
+  /* ─── HERO — white, image below headline (slide 1 style) ── */
+  .hero {
+    background: var(--white);
+    padding: 3rem 2.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.75rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.01em;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 780px;
+  }
+  .hero-title em { font-style: italic; }
+  .hero-sub {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 320px;
+    padding-top: 0.5rem;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+  @media (max-width: 680px) { .hero-sub { display: none; } }
 
 
 
-NO KEY SAVED
-Get API key · Stored only in your browser
-AI-powered voice translation tool
-Translate content into the Nearby Future voice
-Paste text or link to a page. Select your channels. Get content that's grounded, local, and gives people something to do.
-01
-Avoid Anxiety
-Kitchen table framing. No doom. No catastrophizing.
-02
-Near-Term & Nearby
-Start local, start now. Specific place, specific season.
-03
-Give Everyone Agency
-Every piece ends with a clear, achievable action.
-Source Content
-STEP 1 OF 2
+  /* ─── PILLARS — teal rule lines, like slide 2 ──────────── */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 2px solid var(--teal);
+  }
+  @media (max-width: 640px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    padding: 1rem 2.5rem;
+    border-top: 2px solid var(--teal);
+    border-right: 1px solid var(--rule);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--white);
+  }
+  .pillar:last-child { border-right: none; }
+  .pillar-n {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--teal);
+    letter-spacing: 0.08em;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .pillar-body strong {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .pillar-body span {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.45;
+    font-weight: 400;
+  }
 
-Paste text
+  /* ─── APP GRID ─────────────────────────────────────────── */
+  .app {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 2.5rem 2.5rem 6rem;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (max-width: 880px) { .app { grid-template-columns: 1fr; } }
 
-Link to page
+  /* ─── INPUT PANEL ──────────────────────────────────────── */
+  .input-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: var(--r2);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 1rem 1.4rem;
+    border-bottom: 2px solid var(--teal);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    background: var(--off-white);
+  }
+  .card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .card-step {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 1.4rem; }
 
-CHANNELS — STEP 2
-🌐
-Website & UI
+  /* ─── TABS ─────────────────────────────────────────────── */
+  .tabs {
+    display: flex;
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .tab {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--off-white);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.14s, color 0.14s;
+  }
+  .tab + .tab { border-left: 1px solid var(--rule-dark); }
+  .tab svg { width: 12px; height: 12px; }
+  .tab.active { background: var(--ink); color: var(--white); }
+  .tab:not(.active):hover { background: var(--rule); color: var(--ink); }
 
-📱
-Social Media
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
 
-📋
-Policy & Reports
-📰
-Press & Media
-✏️
-Custom Length
-PRIMARY AUDIENCE
-        Local residents & families
-        Community groups & schools
-        Elected officials & public health leaders
-        Healthcare professionals
-        Local & national media
-       Translate to Nearby Future Voice
+  /* ─── FORM CONTROLS ────────────────────────────────────── */
+  textarea, .url-input {
+    width: 100%;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    outline: none;
+    line-height: 1.65;
+    transition: border-color 0.14s, background 0.14s;
+  }
+  textarea:focus, .url-input:focus { border-color: var(--teal); background: var(--white); }
+  textarea::placeholder, .url-input::placeholder { color: var(--muted-light); }
+  textarea { min-height: 155px; padding: 0.8rem 0.9rem; resize: vertical; }
+  .url-input { padding: 0.58rem 0.9rem; }
 
-Regenerate All
-Your translated content will appear here — one card per channel.
+  .url-row { display: flex; gap: 7px; }
+  .fetch-btn {
+    flex-shrink: 0;
+    padding: 0.58rem 1rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--r);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.14s;
+  }
+  .fetch-btn:hover { background: var(--teal); }
+  .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-Writing practice
-Try writing a sentence or paragraph in the Nearby Future voice, then get feedback on how well it matches the brand guidelines.
-✍️  YOUR WRITING
+  .note {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .note svg { width: 11px; height: 11px; flex-shrink: 0; }
 
-Get Feedback
-💬  FEEDBACK
-Your feedback will appear here after you submit some writing.
-// ── STATE ───────────────────────────────────────────────────────────────────── let activeTab = 'text'; let activeUnit = 'words'; // 'words' | 'chars' let lastSourceText = ''; let lastAudience = ''; // ── LENGTH CONTROL ──────────────────────────────────────────────────────────── function setUnit(unit) { activeUnit = unit; document.getElementById('unit-words').classList.toggle('active', unit === 'words'); document.getElementById('unit-chars').classList.toggle('active', unit === 'chars'); updateLengthHint(); } function updateLengthHint() { const n = parseInt(document.getElementById('length-num').value, 10); const hint = document.getElementById('length-hint'); if (!n || n < 1) { hint.textContent = ''; return; } if (activeUnit === 'words') { if (n <= 30) hint.textContent = 'single sentence'; else if (n <= 80) hint.textContent = 'short paragraph'; else if (n <= 200) hint.textContent = '1–2 paragraphs'; else if (n <= 400) hint.textContent = '3–5 paragraphs'; else if (n <= 700) hint.textContent = 'multi-section document'; else hint.textContent = 'long-form document'; } else { if (n <= 180) hint.textContent = 'single sentence'; else if (n <= 500) hint.textContent = 'short paragraph'; else if (n <= 1200) hint.textContent = '1–2 paragraphs'; else if (n <= 2500) hint.textContent = '3–5 paragraphs'; else if (n <= 4500) hint.textContent = 'multi-section document'; else hint.textContent = 'long-form document'; } } document.addEventListener('DOMContentLoaded', () => { document.getElementById('length-num').addEventListener('input', updateLengthHint); }); function getLengthInstruction() { const customOn = document.getElementById('chip-custom')?.querySelector('input')?.checked; if (!customOn) return ''; const n = parseInt(document.getElementById('length-num').value, 10); const unit = activeUnit; if (!n || n < 1) return ''; let fmt = ''; if (unit === 'words') { if (n <= 30) fmt = 'This should be a single sentence.'; else if (n <= 80) fmt = 'This should be a single short paragraph.'; else if (n <= 200) fmt = 'This should be 1–2 paragraphs.'; else if (n <= 400) fmt = 'This should be 3–5 paragraphs.'; else fmt = 'This should be a multi-section structured document.'; } else { if (n <= 180) fmt = 'This should be a single sentence.'; else if (n <= 500) fmt = 'This should be a single short paragraph.'; else if (n <= 1200) fmt = 'This should be 1–2 paragraphs.'; else if (n <= 2500) fmt = 'This should be 3–5 paragraphs.'; else fmt = 'This should be a multi-section structured document.'; } return `LENGTH: Write no more than ${n} ${unit}. ${fmt}`; } // ── REGENERATE ──────────────────────────────────────────────────────────────── function regenAll() { runTranslation(true); } function setRegenEnabled(enabled) { const btn = document.getElementById('regen-btn'); btn.disabled = !enabled; } // ── PROVIDER CONFIG ─────────────────────────────────────────────────────────── const PROVIDERS = { anthropic: { name: 'Anthropic (Claude)', placeholder: 'sk-ant-api03-…', consoleUrl: 'https://console.anthropic.com/keys', model: 'claude-sonnet-4-20250514', }, openai: { name: 'OpenAI (GPT)', placeholder: 'sk-…', consoleUrl: 'https://platform.openai.com/api-keys', model: 'gpt-4o', }, google: { name: 'Google (Gemini)', placeholder: 'AIza…', consoleUrl: 'https://aistudio.google.com/app/apikey', model: 'gemini-2.0-flash', }, xai: { name: 'xAI (Grok)', placeholder: 'xai-…', consoleUrl: 'https://console.x.ai/', model: 'grok-3-latest', }, }; function currentProvider() { return document.getElementById('provider-select').value; } function onProviderChange() { const p = currentProvider(); const cfg = PROVIDERS[p]; document.getElementById('api-key-input').placeholder = cfg.placeholder; document.getElementById('key-console-link').href = cfg.consoleUrl; const saved = localStorage.getItem('nf_key_' + p); document.getElementById('api-key-input').value = saved || ''; setKeyStatus(!!saved); localStorage.setItem('nf_provider', p); } // ── API KEY ─────────────────────────────────────────────────────────────────── function saveKey() { const p = currentProvider(); const val = document.getElementById('api-key-input').value.trim(); if (val) { localStorage.setItem('nf_key_' + p, val); setKeyStatus(true); } else { localStorage.removeItem('nf_key_' + p); setKeyStatus(false); } } function setKeyStatus(ok) { const el = document.getElementById('key-status'); const txt = document.getElementById('key-status-text'); el.className = 'key-status ' + (ok ? 'ok' : 'empty'); txt.textContent = ok ? 'Key saved' : 'No key saved'; } function toggleKeyVisibility() { const inp = document.getElementById('api-key-input'); const icon = document.getElementById('key-eye-icon'); if (inp.type === 'password') { inp.type = 'text'; icon.innerHTML = ''; } else { inp.type = 'password'; icon.innerHTML = ''; } } window.addEventListener('DOMContentLoaded', () => { const savedProvider = localStorage.getItem('nf_provider') || 'anthropic'; document.getElementById('provider-select').value = savedProvider; onProviderChange(); }); // ── TABS ────────────────────────────────────────────────────────────────────── function switchTab(tab, btn) { activeTab = tab; document.querySelectorAll('.tab').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active')); btn.classList.add('active'); document.getElementById('tab-' + tab).classList.add('active'); } // ── CHANNEL CHIPS & SUB-PANELS ──────────────────────────────────────────────── document.querySelectorAll('.chip').forEach(chip => { chip.addEventListener('click', () => { const cb = chip.querySelector('input[type=checkbox]'); cb.checked = !cb.checked; chip.classList.toggle('on', cb.checked); const channel = cb.value; if (channel === 'custom') { // Custom pill directly toggles its own sub-panel document.getElementById('sub-custom').classList.toggle('open', cb.checked); } else if (!cb.checked) { document.getElementById('sub-' + channel)?.classList.remove('open'); document.getElementById('expand-' + channel)?.classList.remove('open'); } }); }); // sub-option pill toggles document.querySelectorAll('.sub-opt').forEach(opt => { opt.addEventListener('click', () => { const cb = opt.querySelector('input[type=checkbox]'); cb.checked = !cb.checked; opt.classList.toggle('on', cb.checked); }); }); function toggleExpand(channel) { const panel = document.getElementById('sub-' + channel); const btn = document.getElementById('expand-' + channel); const isOpen = panel.classList.contains('open'); panel.classList.toggle('open', !isOpen); btn.classList.toggle('open', !isOpen); } function getSubSelections(channel) { // returns array of selected sub-option labels, or empty array (= all) const container = document.getElementById('subopts-' + channel); if (!container) return []; const checked = [...container.querySelectorAll('input:checked')].map(cb => cb.value); const all = [...container.querySelectorAll('input')].map(cb => cb.value); // if all checked or none checked, treat as "all" if (checked.length === 0 || checked.length === all.length) return all; return checked; } // ── URL FETCH ───────────────────────────────────────────────────────────────── async function fetchUrl() { const url = document.getElementById('source-url').value.trim(); const errEl = document.getElementById('url-error'); const fetchBtn = document.getElementById('fetch-btn'); const fetched = document.getElementById('fetched-text'); errEl.style.display = 'none'; if (!url) { showErr(errEl, 'Please enter a URL.'); return; } const apiKey = localStorage.getItem('nf_key_' + currentProvider()); if (!apiKey) { showErr(errEl, 'Please enter your API key above first.'); return; } fetchBtn.disabled = true; fetchBtn.textContent = 'Fetching…'; fetched.value = ''; try { const resp = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, tools: [{ type: 'web_search_20250305', name: 'web_search' }], messages: [{ role: 'user', content: `Fetch the content of this URL and return ONLY the main body text — no HTML, no navigation, no ads, no headers/footers. Just the article or page content as plain text: ${url}` }] }) }); const data = await resp.json(); const text = (data.content||[]).filter(b => b.type === 'text').map(b => b.text).join('\n').trim(); fetched.value = text || 'Could not extract text from that page. Try pasting the content directly.'; } catch(e) { showErr(errEl, 'Failed to fetch that page. Try pasting the content directly.'); } finally { fetchBtn.disabled = false; fetchBtn.textContent = 'Fetch'; } } // ── CHANNEL CONFIG ──────────────────────────────────────────────────────────── const CHANNELS = { website: { label: 'Website & UI', emoji: '🌐', buildPrompt(subs) { const list = subs.join(', '); return `Write UI copy for the Nearby Future website. Produce clearly labeled sections for each of the following formats: ${list}. FORMAT RULES PER TYPE: - Homepage hero: headline (≤6 words, serif display), subhead (1–2 sentences), one CTA verb phrase - Feature description: title + 2–3 sentence body, plain and scannable - Tooltip: one sentence, no jargon - CTA copy: verb-first, specific outcome (e.g. "See your smoke risk" not "Learn more") - Onboarding copy: warm, second-person, action-oriented Label each section clearly (e.g. "## Homepage hero"). VOICE: Active voice, second person, always pair risk with a recommendation.`; } }, social: { label: 'Social Media', emoji: '📱', buildPrompt(subs) { const list = subs.join(', '); return `Write social media content for Nearby Future. Produce clearly labeled sections for each of the following platforms: ${list}. FORMAT RULES PER PLATFORM: - Instagram: 2–3 short conversational paragraphs. End with a question or CTA. Up to 5 hashtags at end. - X/Twitter: 1–2 sentences under 280 characters. Hook first. One CTA. - Facebook: slightly longer than Instagram, community-focused framing, encourage replies. - LinkedIn: 3–4 sentences, professional but accessible, lead with a local data point. Label each section clearly (e.g. "## Instagram"). VOICE: Lead local/specific, never global. Pair every risk with an action.`; } }, policy: { label: 'Policy & Reports', emoji: '📋', buildPrompt(subs) { const list = subs.join(', '); return `Write policy/professional content for Nearby Future. Produce clearly labeled sections for each of the following formats: ${list}. FORMAT RULES PER TYPE: - One-pager: 300–500 words, headers: Situation / Health Impact / Recommended Actions / Policy Levers - Full brief: 600–1000 words, same headers with deeper evidence and citations - Healthcare provider guide: clinical accuracy + patient-facing talking points, 300–500 words - Elected official summary: outcome-focused, quantified impact, policy ask framed as community health investment, 250–400 words Label each section clearly (e.g. "## One-pager"). VOICE: Precise vocabulary, quantify impact, end each with a "What You Can Do" section.`; } }, press: { label: 'Press & Media', emoji: '📰', buildPrompt(subs) { const list = subs.join(', '); return `Write press/media content for Nearby Future. Produce clearly labeled sections for each of the following formats: ${list}. FORMAT RULES PER TYPE: - Press release: inverted pyramid, lead with sharpest local finding, placeholder quote, data point, one reader CTA - Media pitch: 3–5 sentences — story angle, context, why it matters locally - Fact sheet: bullet format — lead stat, 3–5 supporting facts, 1 action item, source-ready Label each section clearly (e.g. "## Press release"). VOICE: Journalists need hooks. Open with specific local stat. Avoid advocacy. Include human/community angle.`; } } }; const AUDIENCE_NOTES = { residents: 'Audience: Local residents and families. Tone: warm, practical, reassuring. Never condescending. Give clear risk levels and specific protective actions.', community: 'Audience: Community groups and schools. Tone: collaborative and accessible. Emphasize shared benefit and community-level actions.', officials: 'Audience: Elected officials and public health leaders. Tone: professional, evidence-based, outcome-focused. Tie data to policy levers they can pull.', healthcare: 'Audience: Healthcare professionals. Tone: clinical accuracy with plain-language parallels. Include patient-facing talking points.', media: 'Audience: Local and national media. Tone: story-driven, fact-anchored, locally specific. Provide compelling hooks and reliable data points.' }; const MASTER_PROMPT = `You are a content writer for Nearby Future, a civic health platform helping individuals and communities understand the health effects of local wildfire smoke. Always write in the Nearby Future voice: 1. START LOCAL — anchor to a specific place, season, or community context first. Never open with a global claim. 2. AVOID ANXIETY — never use: crisis, devastating, catastrophic, alarming, inevitable, doom. Frame content around everyday costs, not fear. 3. NEUTRAL LANGUAGE — avoid politically coded terms. Prefer: air quality conditions, smoke exposure, health risk, local environmental patterns. 4. EVERYDAY COSTS — connect health risks to kitchen table concerns: healthcare costs, missed school/work days, time spent outdoors. 5. ALWAYS INCLUDE AN ACTION — every piece must end with or include a specific, achievable step. Never leave the reader without agency. 6. CITE EVIDENCE — use real data from Nearby Future models, peer-reviewed research, EPA, CDC, and NOAA. Lead with the finding, follow with the source. Translate numbers into lived experience. 7. BE INCLUSIVE — content must feel relevant and respectful across political backgrounds, income levels, and health literacy. Tone: Clear, warm, evidence-based, practical. Not preachy. Not panicked. Reading level: 7th-8th grade unless writing for professional audiences.`; // ── TRANSLATE ───────────────────────────────────────────────────────────────── async function runTranslation(isRegen = false) { const btn = document.getElementById('translate-btn'); const regen = document.getElementById('regen-btn'); const errEl = document.getElementById('translate-error'); errEl.style.display = 'none'; const apiKey = localStorage.getItem('nf_key_' + currentProvider()); if (!apiKey) { showErr(errEl, 'Please enter your API key for the selected provider.'); document.getElementById('api-key-input').focus(); return; } let sourceText; if (isRegen) { sourceText = lastSourceText; } else { sourceText = activeTab === 'text' ? document.getElementById('source-text').value.trim() : (document.getElementById('fetched-text').value.trim() || document.getElementById('source-url').value.trim()); } if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; } const selected = [...document.querySelectorAll('.chip input:checked')] .map(cb => cb.value) .filter(v => v !== 'custom'); if (!selected.length) { showErr(errEl, 'Please select at least one channel.'); return; } const audience = document.getElementById('audience-select').value; const lengthInstr = getLengthInstruction(); // store for regen lastSourceText = sourceText; lastAudience = audience; btn.disabled = true; regen.disabled = true; regen.classList.add('spinning'); const panel = document.getElementById('results-panel'); panel.innerHTML = ''; for (const channel of selected) { const cfg = CHANNELS[channel]; const subs = getSubSelections(channel); const loadEl = mkLoading(cfg.label); panel.appendChild(loadEl); try { const result = await callClaude(sourceText, cfg, subs, audience, apiKey, lengthInstr); panel.removeChild(loadEl); panel.appendChild(mkResult(cfg, result)); } catch(e) { panel.removeChild(loadEl); panel.appendChild(mkError(cfg.label, e.message)); } } btn.disabled = false; regen.disabled = false; regen.classList.remove('spinning'); setRegenEnabled(true); if (!panel.children.length) { panel.innerHTML = '
-No results generated. Please try again.
-'; } } async function callClaude(sourceText, cfg, subs, audience, apiKey, lengthInstr = '') { const provider = currentProvider(); const pcfg = PROVIDERS[provider]; const channelPrompt = cfg.buildPrompt(subs); const lengthBlock = lengthInstr ? `\n\n${lengthInstr}` : ''; const prompt = `${MASTER_PROMPT}\n\n${AUDIENCE_NOTES[audience]}\n\n${channelPrompt}${lengthBlock}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above in the Nearby Future voice for the channel and audience specified. Keep the core facts and intent, but transform the language, structure, and framing entirely. Do not use any catastrophizing language. Output only the translated content with no preamble or explanation.`; if (provider === 'anthropic') { const resp = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }) }); if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Anthropic API error ' + resp.status); } const data = await resp.json(); if (data.error) throw new Error(data.error.message); return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim(); } if (provider === 'openai') { const resp = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }, body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }) }); if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'OpenAI API error ' + resp.status); } const data = await resp.json(); return data.choices?.[0]?.message?.content?.trim() || ''; } if (provider === 'google') { const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 1000 } }) }); if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Gemini API error ' + resp.status); } const data = await resp.json(); return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || ''; } if (provider === 'xai') { const resp = await fetch('https://api.x.ai/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }, body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }) }); if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'xAI API error ' + resp.status); } const data = await resp.json(); return data.choices?.[0]?.message?.content?.trim() || ''; } throw new Error('Unknown provider: ' + provider); } // ── WRITING PRACTICE ────────────────────────────────────────────────────────── const FEEDBACK_PROMPT = `You are a writing coach for Nearby Future, a civic health platform. Your job is to give brief, constructive feedback on whether a piece of writing matches the Nearby Future brand voice. THE NEARBY FUTURE VOICE RULES: 1. START LOCAL — anchor to a specific place, season, or community. Never open with a global claim. 2. AVOID ANXIETY — no crisis, devastating, catastrophic, alarming, inevitable, doom. Frame through everyday costs (healthcare bills, missed school days, time outdoors), not fear. 3. NEUTRAL LANGUAGE — avoid politically coded terms. Use: air quality conditions, smoke exposure, health risk, local environmental patterns. 4. EVERYDAY COSTS — connect health risks to kitchen table concerns. 5. ALWAYS INCLUDE AN ACTION — every piece must include a specific, achievable step. 6. BE INCLUSIVE — relevant and respectful across political backgrounds, income levels, health literacy. YOUR RESPONSE FORMAT — respond ONLY with valid JSON, no markdown, no backticks: { "verdict": "great" | "good" | "needs", "verdictLabel": "Great work" | "Good, needs some adjustment" | "Not quite matching the guidelines", "feedback": "2–4 sentences of specific, constructive coaching. Mention what works first if anything does. Point to specific rules that are or aren't being followed. Never rewrite the copy — guide the writer to improve it themselves. Be encouraging but honest." } The three verdict values map to: - "great": follows most or all guidelines well - "good": on the right track but has 1–2 specific issues to address - "needs": missing several guidelines or has a fundamental tone mismatch`; async function getFeedback() { const btn = document.getElementById('feedback-btn'); const pane = document.getElementById('feedback-pane'); const text = document.getElementById('practice-input').value.trim(); if (!text) { pane.innerHTML = `
-Please write something first.
-`; return; } const apiKey = localStorage.getItem('nf_key_' + currentProvider()); if (!apiKey) { pane.innerHTML = `
-Please enter your API key in the bar above.
-`; return; } btn.disabled = true; pane.innerHTML = `
+  /* ─── SECTION LABEL ────────────────────────────────────── */
+  .sec-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 1.25rem 0 0.6rem;
+    display: block;
+  }
 
-Reading your writing…
-`; try { const provider = currentProvider(); const pcfg = PROVIDERS[provider]; const messages = [{ role: 'user', content: `${FEEDBACK_PROMPT}\n\nPIECE TO EVALUATE:\n---\n${text.slice(0, 2000)}\n---` }]; let raw = ''; if (provider === 'anthropic') { const resp = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify({ model: pcfg.model, max_tokens: 400, messages }) }); const data = await resp.json(); if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status); raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim(); } else if (provider === 'openai' || provider === 'xai') { const url = provider === 'openai' ? 'https://api.openai.com/v1/chat/completions' : 'https://api.x.ai/v1/chat/completions'; const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }, body: JSON.stringify({ model: pcfg.model, max_tokens: 400, messages }) }); const data = await resp.json(); if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status); raw = data.choices?.[0]?.message?.content?.trim() || ''; } else if (provider === 'google') { const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: messages[0].content }] }], generationConfig: { maxOutputTokens: 400 } }) }); const data = await resp.json(); if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status); raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || ''; } // parse JSON — strip any accidental markdown fences const clean = raw.replace(/```json|```/g, '').trim(); const result = JSON.parse(clean); const verdictClass = result.verdict === 'great' ? 'great' : result.verdict === 'good' ? 'good' : 'needs'; const icon = result.verdict === 'great' ? '✓' : result.verdict === 'good' ? '◐' : '○'; pane.innerHTML = `
+  /* ─── CHANNEL CHIPS ────────────────────────────────────── */
+  .chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.55rem 0.875rem;
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.14s, background 0.14s;
+  }
+  .chip:hover { border-color: var(--teal-light); background: var(--teal-bg); }
+  .chip.on {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .chip input { display: none; }
+  .chip-ico { font-size: 0.82rem; line-height: 1; }
+  .chip-lbl {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.14s;
+  }
+  .chip.on .chip-lbl { color: var(--white); }
 
-${XHTML(RESULT.VERDICTLABEL)}
-${xhtml(result.feedback)}
-`; } catch(e) { pane.innerHTML = `
-Couldn't get feedback. ${xhtml(e.message)}
-`; } finally { btn.disabled = false; } } // ── UI BUILDERS ─────────────────────────────────────────────────────────────── function mkLoading(label) { const el = document.createElement('div'); el.className = 'loading-card'; el.innerHTML = `
+  /* ─── SUB-CHANNEL EXPANDER ────────────────────────────── */
+  .channel-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .chip-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .chip {
+    flex: 1;
+    border-radius: var(--r) 0 0 var(--r);
+  }
+  .chip-expand {
+    flex-shrink: 0;
+    width: 30px;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-left: none;
+    border-radius: 0 var(--r) var(--r) 0;
+    cursor: pointer;
+    color: var(--muted);
+    transition: background 0.12s, color 0.12s;
+    padding: 0;
+  }
+  .chip-expand svg { width: 11px; height: 11px; transition: transform 0.18s; }
+  .chip-expand:hover { background: var(--rule); color: var(--ink); }
+  .chip.on ~ .chip-expand {
+    display: flex;
+    background: #1a1a1a;
+    border-color: var(--ink);
+    color: rgba(255,255,255,0.5);
+  }
+  .chip.on ~ .chip-expand:hover { color: white; background: #222; }
+  .chip-expand.open svg { transform: rotate(180deg); }
 
-Translating for ${label}…
-`; return el; } function mkResult(cfg, text) { const el = document.createElement('div'); el.className = 'result-card'; const tags = [...text.matchAll(/#\w+/g)].map(m => m[0]).slice(0, 6); const body = tags.length ? text.replace(/#\w+/g, '').trim() : text; el.innerHTML = ` ${CFG.EMOJI}  ${CFG.LABEL}
+  .sub-panel {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 10px 10px;
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-top: none;
+    border-radius: 0 0 var(--r) var(--r);
+    animation: up 0.16s ease both;
+  }
+  .sub-panel.open { display: flex; }
+  .sub-panel-label {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .sub-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .sub-opt {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--white);
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+  }
+  .sub-opt:hover { border-color: var(--teal-light); color: var(--teal); }
+  .sub-opt.on {
+    background: var(--teal-bg);
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+  .sub-opt input { display: none; }
+  .sub-check {
+    width: 10px; height: 10px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .sub-opt.on .sub-check::after {
+    content: '';
+    display: block;
+    width: 5px; height: 5px;
+    background: var(--teal);
+    border-radius: 1px;
+  }
 
-COPY
-${xhtml(body)}
-${tags.length ? `${tags.map(t=>`
-${xhtml(t)}
-`).join('')}` : ''}
-`; return el; } function mkError(label, msg) { const el = document.createElement('div'); el.className = 'result-card'; el.innerHTML = ` ${LABEL}
+  /* ─── AUDIENCE SELECT ──────────────────────────────────── */
+  .aud-select {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 0.9rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.14s;
+  }
+  .aud-select:focus { border-color: var(--teal); }
 
-${xhtml(msg||'Translation failed. Please try again.')}
-`; return el; } async function doCopy(btn, text) { try { await navigator.clipboard.writeText(text); btn.innerHTML = ` Copied`; btn.classList.add('done'); setTimeout(() => { btn.innerHTML = ` Copy`; btn.classList.remove('done'); }, 2000); } catch(e) {} } function showErr(el, msg) { el.style.display = 'flex'; el.innerHTML = `${msg}`; } function xhtml(s) { return s.replace(/&/g,'&').replace(//g,'>').replace(/"/g,'"'); } function esc(s) { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+  /* ─── LENGTH CONTROL ───────────────────────────────────── */
+  .length-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .length-preset {
+    flex: 1;
+    padding: 0.6rem 2rem 0.6rem 0.9rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.14s;
+  }
+  .length-preset:focus { border-color: var(--teal); }
+
+  .length-custom {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-top: 7px;
+    animation: up 0.18s ease both;
+  }
+  .length-custom.visible { display: flex; }
+  .length-num {
+    width: 88px;
+    flex-shrink: 0;
+    padding: 0.55rem 0.7rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    outline: none;
+    transition: border-color 0.14s;
+    -moz-appearance: textfield;
+  }
+  .length-num:focus { border-color: var(--teal); background: var(--white); }
+  .length-num::-webkit-inner-spin-button,
+  .length-num::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .unit-toggle {
+    display: flex;
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .unit-btn {
+    padding: 0.55rem 0.75rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--off-white);
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+  }
+  .unit-btn + .unit-btn { border-left: 1px solid var(--rule-dark); }
+  .unit-btn.active { background: var(--ink); color: var(--white); }
+  .length-hint {
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  /* ─── REGENERATE BUTTON ────────────────────────────────── */
+  .regen-btn {
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.65rem 1.5rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: border-color 0.14s, background 0.14s, color 0.14s;
+    letter-spacing: 0.01em;
+  }
+  .regen-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .regen-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .regen-btn svg { width: 13px; height: 13px; transition: transform 0.4s; }
+  .regen-btn.spinning svg { animation: rotate 0.65s linear infinite; }
+
+  /* ─── TRANSLATE BUTTON ─────────────────────────────────── */
+  .go-btn {
+    width: 100%;
+    margin-top: 1.4rem;
+    padding: 0.95rem 1.5rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--r);
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 500;
+    font-style: italic;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: background 0.14s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .go-btn:hover { background: var(--teal); }
+  .go-btn:active { transform: scale(0.99); }
+  .go-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .go-btn svg { width: 15px; height: 15px; }
+
+  /* ─── ERROR ────────────────────────────────────────────── */
+  .err {
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    background: #FEF3F2;
+    border: 1px solid #FECDCA;
+    border-radius: var(--r);
+    font-size: 0.8rem;
+    color: #B42318;
+    line-height: 1.5;
+  }
+  .err svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
+
+  /* ─── RESULTS ──────────────────────────────────────────── */
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .empty {
+    border: 1px dashed var(--rule-dark);
+    border-radius: var(--r2);
+    padding: 4.5rem 2rem;
+    text-align: center;
+    background: var(--off-white);
+  }
+  .empty svg { width: 30px; height: 30px; color: var(--rule-dark); margin-bottom: 1rem; }
+  .empty p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; max-width: 240px; margin: 0 auto; }
+
+  /* Result cards — white with teal top border, like slide 2 table rows */
+  .result-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--teal);
+    border-radius: var(--r2);
+    overflow: hidden;
+    animation: up 0.28s ease both;
+  }
+  @keyframes up {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .r-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid var(--rule);
+    background: var(--off-white);
+  }
+  .r-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .copy-btn {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    padding: 3px 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: border-color 0.14s, color 0.14s;
+  }
+  .copy-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .copy-btn.done  { color: var(--sage); border-color: var(--sage); }
+  .copy-btn svg { width: 10px; height: 10px; }
+
+  .r-body { padding: 1.4rem; }
+  .r-text {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--ink-mid);
+    white-space: pre-wrap;
+  }
+  .r-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .r-tag {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--teal);
+    background: var(--teal-bg);
+    border: 1px solid var(--teal-light);
+    border-radius: 2px;
+    padding: 2px 8px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── WRITING PRACTICE ────────────────────────────────── */
+  .practice-section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 2.5rem 6rem;
+  }
+  .practice-divider {
+    border: none;
+    border-top: 2px solid var(--teal);
+    margin-bottom: 2.5rem;
+  }
+  .practice-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+  .practice-sub {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  .practice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 780px) { .practice-grid { grid-template-columns: 1fr; } }
+
+  .practice-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .practice-pane-head {
+    padding: 0.7rem 1.2rem;
+    background: var(--off-white);
+    border: 1px solid var(--rule);
+    border-bottom: 2px solid var(--teal);
+    border-radius: var(--r2) var(--r2) 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .practice-pane-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .practice-pane-body {
+    border: 1px solid var(--rule);
+    border-top: none;
+    border-radius: 0 0 var(--r2) var(--r2);
+    overflow: hidden;
+    background: var(--white);
+  }
+  .practice-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem 1.2rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: vertical;
+  }
+  .practice-textarea::placeholder { color: var(--muted-light); }
+
+  .practice-footer {
+    padding: 0.75rem 1.2rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: var(--off-white);
+  }
+  .feedback-btn {
+    padding: 0.55rem 1.25rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--r);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background 0.14s;
+  }
+  .feedback-btn:hover { background: var(--teal); }
+  .feedback-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .feedback-btn svg { width: 13px; height: 13px; }
+
+  /* Feedback result pane */
+  .feedback-empty {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+  .feedback-empty svg { width: 24px; height: 24px; color: var(--rule-dark); margin-bottom: 0.75rem; }
+  .feedback-empty p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; max-width: 200px; margin: 0 auto; }
+
+  .feedback-result {
+    padding: 1.25rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    animation: up 0.24s ease both;
+  }
+  .feedback-verdict {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .verdict-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .verdict-badge.great  { background: #EFF6F0; color: #3A7A44; border: 1px solid #A8C8AC; }
+  .verdict-badge.good   { background: #FFF8EC; color: #9A6500; border: 1px solid #E8C97A; }
+  .verdict-badge.needs  { background: #FEF3F2; color: #B42318; border: 1px solid #FECDCA; }
+  .verdict-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .feedback-body {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: var(--ink-mid);
+  }
+  .feedback-body strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ─── LOADING ──────────────────────────────────────────── */
+  .loading-card {
+    background: var(--off-white);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--teal-light);
+    border-radius: var(--r2);
+    padding: 1.6rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: up 0.2s ease both;
+  }
+  .spin {
+    width: 18px; height: 18px;
+    border: 2px solid var(--rule-dark);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: rotate 0.65s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  .loading-txt { font-size: 0.83rem; color: var(--muted); }
+  .loading-ch { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ──────────────────────────────────────────── -->
+<header>
+  <span class="badge">Nearby Future · Content Translator</span>
+  <span class="badge">Beta</span>
+</header>
+
+<!-- ─── API KEY BAR ─────────────────────────────────────── -->
+<div class="key-bar">
+  <span class="key-label">Provider</span>
+  <select class="provider-select" id="provider-select" onchange="onProviderChange()">
+    <option value="anthropic">Anthropic (Claude)</option>
+    <option value="openai">OpenAI (GPT)</option>
+    <option value="google">Google (Gemini)</option>
+    <option value="xai">xAI (Grok)</option>
+  </select>
+  <span class="key-label" style="margin-left:4px">API Key</span>
+  <div class="key-wrap">
+    <input class="key-input" id="api-key-input" type="password"
+      placeholder="sk-ant-api03-…" oninput="saveKey()"
+      autocomplete="off" spellcheck="false">
+    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
+      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+    </button>
+  </div>
+  <div class="key-status empty" id="key-status">
+    <span class="key-dot"></span>
+    <span id="key-status-text">No key saved</span>
+  </div>
+  <span class="key-link">
+    <a id="key-console-link" href="https://console.anthropic.com/keys" target="_blank">Get API key</a>
+    · Stored only in your browser
+  </span>
+</div>
+
+<!-- ─── HERO ─────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-top">
+    <div>
+      <p class="hero-eyebrow">AI-powered voice translation tool</p>
+      <h1 class="hero-title">Translate content into<br>the <em>Nearby Future</em> voice</h1>
+    </div>
+    <p class="hero-sub">Paste text or link to a page. Select your channels. Get content that's grounded, local, and gives people something to do.</p>
+  </div>
+
+</div>
+
+<!-- ─── PILLARS ──────────────────────────────────────────── -->
+<div class="pillars">
+  <div class="pillar">
+    <span class="pillar-n">01</span>
+    <div class="pillar-body">
+      <strong>Avoid Anxiety</strong>
+      <span>Kitchen table framing. No doom. No catastrophizing.</span>
+    </div>
+  </div>
+  <div class="pillar">
+    <span class="pillar-n">02</span>
+    <div class="pillar-body">
+      <strong>Near-Term &amp; Nearby</strong>
+      <span>Start local, start now. Specific place, specific season.</span>
+    </div>
+  </div>
+  <div class="pillar">
+    <span class="pillar-n">03</span>
+    <div class="pillar-body">
+      <strong>Give Everyone Agency</strong>
+      <span>Every piece ends with a clear, achievable action.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── APP ───────────────────────────────────────────────── -->
+<div class="app">
+
+  <!-- Input Panel -->
+  <div class="input-card">
+    <div class="card-head">
+      <span class="card-title">Source Content</span>
+      <span class="card-step">Step 1 of 2</span>
+    </div>
+    <div class="card-body">
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('text',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h12v2H3z"/></svg>
+          Paste text
+        </button>
+        <button class="tab" onclick="switchTab('url',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+          Link to page
+        </button>
+      </div>
+
+      <div class="tab-pane active" id="tab-text">
+        <textarea id="source-text" placeholder="Paste a press release, fact sheet, social post, policy brief, or any existing content here…"></textarea>
+      </div>
+
+      <div class="tab-pane" id="tab-url">
+        <div class="url-row">
+          <input class="url-input" id="source-url" type="url" placeholder="https://example.com/article">
+          <button class="fetch-btn" id="fetch-btn" onclick="fetchUrl()">Fetch</button>
+        </div>
+        <div class="note">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Page text will be extracted for review before translating.
+        </div>
+        <div id="url-error" class="err" style="margin-top:0.6rem"></div>
+        <textarea id="fetched-text" placeholder="Fetched content will appear here…" style="margin-top:0.875rem;min-height:110px"></textarea>
+      </div>
+
+      <span class="sec-label">Channels — Step 2</span>
+      <div class="chips">
+
+        <!-- Website & UI -->
+        <div class="channel-block">
+          <div class="chip-row">
+            <label class="chip on" id="chip-website">
+              <input type="checkbox" value="website" checked>
+              <span class="chip-ico">🌐</span>
+              <span class="chip-lbl">Website &amp; UI</span>
+            </label>
+            <button class="chip-expand" id="expand-website" onclick="toggleExpand('website')" title="Choose formats">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+          </div>
+          <div class="sub-panel" id="sub-website">
+            <span class="sub-panel-label">Formats</span>
+            <div class="sub-options" id="subopts-website">
+              <label class="sub-opt on"><input type="checkbox" value="Homepage hero" checked><span class="sub-check"></span>Homepage hero</label>
+              <label class="sub-opt on"><input type="checkbox" value="Feature description" checked><span class="sub-check"></span>Feature description</label>
+              <label class="sub-opt"><input type="checkbox" value="Tooltip"><span class="sub-check"></span>Tooltip</label>
+              <label class="sub-opt"><input type="checkbox" value="CTA copy"><span class="sub-check"></span>CTA copy</label>
+              <label class="sub-opt"><input type="checkbox" value="Onboarding copy"><span class="sub-check"></span>Onboarding copy</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="channel-block">
+          <div class="chip-row">
+            <label class="chip on" id="chip-social">
+              <input type="checkbox" value="social" checked>
+              <span class="chip-ico">📱</span>
+              <span class="chip-lbl">Social Media</span>
+            </label>
+            <button class="chip-expand" id="expand-social" onclick="toggleExpand('social')" title="Choose platforms">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+          </div>
+          <div class="sub-panel" id="sub-social">
+            <span class="sub-panel-label">Platforms</span>
+            <div class="sub-options" id="subopts-social">
+              <label class="sub-opt on"><input type="checkbox" value="Instagram" checked><span class="sub-check"></span>Instagram</label>
+              <label class="sub-opt on"><input type="checkbox" value="X/Twitter" checked><span class="sub-check"></span>X/Twitter</label>
+              <label class="sub-opt"><input type="checkbox" value="Facebook"><span class="sub-check"></span>Facebook</label>
+              <label class="sub-opt"><input type="checkbox" value="LinkedIn"><span class="sub-check"></span>LinkedIn</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policy & Reports -->
+        <div class="channel-block">
+          <div class="chip-row">
+            <label class="chip" id="chip-policy">
+              <input type="checkbox" value="policy">
+              <span class="chip-ico">📋</span>
+              <span class="chip-lbl">Policy &amp; Reports</span>
+            </label>
+            <button class="chip-expand" id="expand-policy" onclick="toggleExpand('policy')" title="Choose formats">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+          </div>
+          <div class="sub-panel" id="sub-policy">
+            <span class="sub-panel-label">Formats</span>
+            <div class="sub-options" id="subopts-policy">
+              <label class="sub-opt on"><input type="checkbox" value="One-pager" checked><span class="sub-check"></span>One-pager</label>
+              <label class="sub-opt"><input type="checkbox" value="Full brief"><span class="sub-check"></span>Full brief</label>
+              <label class="sub-opt"><input type="checkbox" value="Healthcare provider guide"><span class="sub-check"></span>Healthcare provider guide</label>
+              <label class="sub-opt"><input type="checkbox" value="Elected official summary"><span class="sub-check"></span>Elected official summary</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Press & Media -->
+        <div class="channel-block">
+          <div class="chip-row">
+            <label class="chip" id="chip-press">
+              <input type="checkbox" value="press">
+              <span class="chip-ico">📰</span>
+              <span class="chip-lbl">Press &amp; Media</span>
+            </label>
+            <button class="chip-expand" id="expand-press" onclick="toggleExpand('press')" title="Choose formats">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+          </div>
+          <div class="sub-panel" id="sub-press">
+            <span class="sub-panel-label">Formats</span>
+            <div class="sub-options" id="subopts-press">
+              <label class="sub-opt on"><input type="checkbox" value="Press release" checked><span class="sub-check"></span>Press release</label>
+              <label class="sub-opt on"><input type="checkbox" value="Media pitch" checked><span class="sub-check"></span>Media pitch</label>
+              <label class="sub-opt"><input type="checkbox" value="Fact sheet"><span class="sub-check"></span>Fact sheet</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Length -->
+        <div class="channel-block">
+          <div class="chip-row">
+            <label class="chip" id="chip-custom" style="border-radius:var(--r)">
+              <input type="checkbox" value="custom">
+              <span class="chip-ico">✏️</span>
+              <span class="chip-lbl">Custom Length</span>
+            </label>
+          </div>
+          <div class="sub-panel" id="sub-custom">
+            <span class="sub-panel-label">Max length</span>
+            <div class="length-custom visible" id="length-custom" style="margin-top:0">
+              <input class="length-num" id="length-num" type="number" min="10" max="10000" placeholder="300">
+              <div class="unit-toggle">
+                <button class="unit-btn active" id="unit-words" onclick="setUnit('words')">words</button>
+                <button class="unit-btn" id="unit-chars" onclick="setUnit('chars')">chars</button>
+              </div>
+              <span class="length-hint" id="length-hint"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <span class="sec-label">Primary Audience</span>
+      <select class="aud-select" id="audience-select">
+        <option value="residents">Local residents &amp; families</option>
+        <option value="community">Community groups &amp; schools</option>
+        <option value="officials">Elected officials &amp; public health leaders</option>
+        <option value="healthcare">Healthcare professionals</option>
+        <option value="media">Local &amp; national media</option>
+      </select>
+
+      <button class="go-btn" id="translate-btn" onclick="runTranslation()">
+        Translate to Nearby Future Voice
+      </button>
+      <button class="regen-btn" id="regen-btn" onclick="regenAll()" disabled>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Regenerate All
+      </button>
+      <div id="translate-error" class="err"></div>
+
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results-panel">
+    <div class="empty" id="empty-state">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+      <p>Your translated content will appear here — one card per channel.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── WRITING PRACTICE ──────────────────────────────────── -->
+<div class="practice-section">
+  <hr class="practice-divider">
+  <h2 class="practice-heading">Writing practice</h2>
+  <p class="practice-sub">Try writing a sentence or paragraph in the Nearby Future voice, then get feedback on how well it matches the brand guidelines.</p>
+
+  <div class="practice-grid">
+
+    <!-- Input pane -->
+    <div class="practice-pane">
+      <div class="practice-pane-head">
+        <span class="practice-pane-label">✍️ &nbsp;Your writing</span>
+      </div>
+      <div class="practice-pane-body">
+        <textarea class="practice-textarea" id="practice-input"
+          placeholder="Try writing in the Nearby Future voice…&#10;&#10;For example: describe a local air quality situation, share a health risk, or write a call to action — then hit Get Feedback."></textarea>
+        <div class="practice-footer">
+          <button class="feedback-btn" id="feedback-btn" onclick="getFeedback()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+            Get Feedback
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback pane -->
+    <div class="practice-pane">
+      <div class="practice-pane-head">
+        <span class="practice-pane-label">💬 &nbsp;Feedback</span>
+      </div>
+      <div class="practice-pane-body" id="feedback-pane">
+        <div class="feedback-empty">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+          <p>Your feedback will appear here after you submit some writing.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let activeTab = 'text';
+let activeUnit = 'words'; // 'words' | 'chars'
+let lastSourceText = '';
+let lastAudience = '';
+
+// ── LENGTH CONTROL ────────────────────────────────────────────────────────────
+function setUnit(unit) {
+  activeUnit = unit;
+  document.getElementById('unit-words').classList.toggle('active', unit === 'words');
+  document.getElementById('unit-chars').classList.toggle('active', unit === 'chars');
+  updateLengthHint();
+}
+
+function updateLengthHint() {
+  const n    = parseInt(document.getElementById('length-num').value, 10);
+  const hint = document.getElementById('length-hint');
+  if (!n || n < 1) { hint.textContent = ''; return; }
+
+  if (activeUnit === 'words') {
+    if (n <= 30)        hint.textContent = 'single sentence';
+    else if (n <= 80)   hint.textContent = 'short paragraph';
+    else if (n <= 200)  hint.textContent = '1–2 paragraphs';
+    else if (n <= 400)  hint.textContent = '3–5 paragraphs';
+    else if (n <= 700)  hint.textContent = 'multi-section document';
+    else                hint.textContent = 'long-form document';
+  } else {
+    if (n <= 180)       hint.textContent = 'single sentence';
+    else if (n <= 500)  hint.textContent = 'short paragraph';
+    else if (n <= 1200) hint.textContent = '1–2 paragraphs';
+    else if (n <= 2500) hint.textContent = '3–5 paragraphs';
+    else if (n <= 4500) hint.textContent = 'multi-section document';
+    else                hint.textContent = 'long-form document';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('length-num').addEventListener('input', updateLengthHint);
+});
+
+function getLengthInstruction() {
+  const customOn = document.getElementById('chip-custom')?.querySelector('input')?.checked;
+  if (!customOn) return '';
+
+  const n    = parseInt(document.getElementById('length-num').value, 10);
+  const unit = activeUnit;
+  if (!n || n < 1) return '';
+
+  let fmt = '';
+  if (unit === 'words') {
+    if (n <= 30)        fmt = 'This should be a single sentence.';
+    else if (n <= 80)   fmt = 'This should be a single short paragraph.';
+    else if (n <= 200)  fmt = 'This should be 1–2 paragraphs.';
+    else if (n <= 400)  fmt = 'This should be 3–5 paragraphs.';
+    else                fmt = 'This should be a multi-section structured document.';
+  } else {
+    if (n <= 180)       fmt = 'This should be a single sentence.';
+    else if (n <= 500)  fmt = 'This should be a single short paragraph.';
+    else if (n <= 1200) fmt = 'This should be 1–2 paragraphs.';
+    else if (n <= 2500) fmt = 'This should be 3–5 paragraphs.';
+    else                fmt = 'This should be a multi-section structured document.';
+  }
+  return `LENGTH: Write no more than ${n} ${unit}. ${fmt}`;
+}
+
+// ── REGENERATE ────────────────────────────────────────────────────────────────
+function regenAll() {
+  runTranslation(true);
+}
+
+function setRegenEnabled(enabled) {
+  const btn = document.getElementById('regen-btn');
+  btn.disabled = !enabled;
+}
+
+// ── PROVIDER CONFIG ───────────────────────────────────────────────────────────
+const PROVIDERS = {
+  anthropic: {
+    name: 'Anthropic (Claude)',
+    placeholder: 'sk-ant-api03-…',
+    consoleUrl: 'https://console.anthropic.com/keys',
+    model: 'claude-sonnet-4-20250514',
+  },
+  openai: {
+    name: 'OpenAI (GPT)',
+    placeholder: 'sk-…',
+    consoleUrl: 'https://platform.openai.com/api-keys',
+    model: 'gpt-4o',
+  },
+  google: {
+    name: 'Google (Gemini)',
+    placeholder: 'AIza…',
+    consoleUrl: 'https://aistudio.google.com/app/apikey',
+    model: 'gemini-2.0-flash',
+  },
+  xai: {
+    name: 'xAI (Grok)',
+    placeholder: 'xai-…',
+    consoleUrl: 'https://console.x.ai/',
+    model: 'grok-3-latest',
+  },
+};
+
+function currentProvider() {
+  return document.getElementById('provider-select').value;
+}
+
+function onProviderChange() {
+  const p = currentProvider();
+  const cfg = PROVIDERS[p];
+  document.getElementById('api-key-input').placeholder = cfg.placeholder;
+  document.getElementById('key-console-link').href = cfg.consoleUrl;
+  const saved = localStorage.getItem('nf_key_' + p);
+  document.getElementById('api-key-input').value = saved || '';
+  setKeyStatus(!!saved);
+  localStorage.setItem('nf_provider', p);
+}
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
+function saveKey() {
+  const p   = currentProvider();
+  const val = document.getElementById('api-key-input').value.trim();
+  if (val) { localStorage.setItem('nf_key_' + p, val); setKeyStatus(true); }
+  else     { localStorage.removeItem('nf_key_' + p);   setKeyStatus(false); }
+}
+
+function setKeyStatus(ok) {
+  const el  = document.getElementById('key-status');
+  const txt = document.getElementById('key-status-text');
+  el.className = 'key-status ' + (ok ? 'ok' : 'empty');
+  txt.textContent = ok ? 'Key saved' : 'No key saved';
+}
+
+function toggleKeyVisibility() {
+  const inp  = document.getElementById('api-key-input');
+  const icon = document.getElementById('key-eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+  } else {
+    inp.type = 'password';
+    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const savedProvider = localStorage.getItem('nf_provider') || 'anthropic';
+  document.getElementById('provider-select').value = savedProvider;
+  onProviderChange();
+});
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ── CHANNEL CHIPS & SUB-PANELS ────────────────────────────────────────────────
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const cb      = chip.querySelector('input[type=checkbox]');
+    cb.checked    = !cb.checked;
+    chip.classList.toggle('on', cb.checked);
+    const channel = cb.value;
+    if (channel === 'custom') {
+      // Custom pill directly toggles its own sub-panel
+      document.getElementById('sub-custom').classList.toggle('open', cb.checked);
+    } else if (!cb.checked) {
+      document.getElementById('sub-' + channel)?.classList.remove('open');
+      document.getElementById('expand-' + channel)?.classList.remove('open');
+    }
+  });
+});
+
+// sub-option pill toggles
+document.querySelectorAll('.sub-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const cb   = opt.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+    opt.classList.toggle('on', cb.checked);
+  });
+});
+
+function toggleExpand(channel) {
+  const panel  = document.getElementById('sub-' + channel);
+  const btn    = document.getElementById('expand-' + channel);
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+function getSubSelections(channel) {
+  // returns array of selected sub-option labels, or empty array (= all)
+  const container = document.getElementById('subopts-' + channel);
+  if (!container) return [];
+  const checked = [...container.querySelectorAll('input:checked')].map(cb => cb.value);
+  const all     = [...container.querySelectorAll('input')].map(cb => cb.value);
+  // if all checked or none checked, treat as "all"
+  if (checked.length === 0 || checked.length === all.length) return all;
+  return checked;
+}
+
+// ── URL FETCH ─────────────────────────────────────────────────────────────────
+async function fetchUrl() {
+  const url      = document.getElementById('source-url').value.trim();
+  const errEl    = document.getElementById('url-error');
+  const fetchBtn = document.getElementById('fetch-btn');
+  const fetched  = document.getElementById('fetched-text');
+
+  errEl.style.display = 'none';
+  if (!url) { showErr(errEl, 'Please enter a URL.'); return; }
+
+  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
+  if (!apiKey) { showErr(errEl, 'Please enter your API key above first.'); return; }
+
+  fetchBtn.disabled = true;
+  fetchBtn.textContent = 'Fetching…';
+  fetched.value = '';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: `Fetch the content of this URL and return ONLY the main body text — no HTML, no navigation, no ads, no headers/footers. Just the article or page content as plain text: ${url}` }]
+      })
+    });
+    const data = await resp.json();
+    const text = (data.content||[]).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+    fetched.value = text || 'Could not extract text from that page. Try pasting the content directly.';
+  } catch(e) {
+    showErr(errEl, 'Failed to fetch that page. Try pasting the content directly.');
+  } finally {
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = 'Fetch';
+  }
+}
+
+// ── CHANNEL CONFIG ────────────────────────────────────────────────────────────
+const CHANNELS = {
+  website: {
+    label: 'Website & UI', emoji: '🌐',
+    buildPrompt(subs) {
+      const list = subs.join(', ');
+      return `Write UI copy for the Nearby Future website. Produce clearly labeled sections for each of the following formats: ${list}.
+
+FORMAT RULES PER TYPE:
+- Homepage hero: headline (≤6 words, serif display), subhead (1–2 sentences), one CTA verb phrase
+- Feature description: title + 2–3 sentence body, plain and scannable
+- Tooltip: one sentence, no jargon
+- CTA copy: verb-first, specific outcome (e.g. "See your smoke risk" not "Learn more")
+- Onboarding copy: warm, second-person, action-oriented
+
+Label each section clearly (e.g. "## Homepage hero"). VOICE: Active voice, second person, always pair risk with a recommendation.`;
+    }
+  },
+  social: {
+    label: 'Social Media', emoji: '📱',
+    buildPrompt(subs) {
+      const list = subs.join(', ');
+      return `Write social media content for Nearby Future. Produce clearly labeled sections for each of the following platforms: ${list}.
+
+FORMAT RULES PER PLATFORM:
+- Instagram: 2–3 short conversational paragraphs. End with a question or CTA. Up to 5 hashtags at end.
+- X/Twitter: 1–2 sentences under 280 characters. Hook first. One CTA.
+- Facebook: slightly longer than Instagram, community-focused framing, encourage replies.
+- LinkedIn: 3–4 sentences, professional but accessible, lead with a local data point.
+
+Label each section clearly (e.g. "## Instagram"). VOICE: Lead local/specific, never global. Pair every risk with an action.`;
+    }
+  },
+  policy: {
+    label: 'Policy & Reports', emoji: '📋',
+    buildPrompt(subs) {
+      const list = subs.join(', ');
+      return `Write policy/professional content for Nearby Future. Produce clearly labeled sections for each of the following formats: ${list}.
+
+FORMAT RULES PER TYPE:
+- One-pager: 300–500 words, headers: Situation / Health Impact / Recommended Actions / Policy Levers
+- Full brief: 600–1000 words, same headers with deeper evidence and citations
+- Healthcare provider guide: clinical accuracy + patient-facing talking points, 300–500 words
+- Elected official summary: outcome-focused, quantified impact, policy ask framed as community health investment, 250–400 words
+
+Label each section clearly (e.g. "## One-pager"). VOICE: Precise vocabulary, quantify impact, end each with a "What You Can Do" section.`;
+    }
+  },
+  press: {
+    label: 'Press & Media', emoji: '📰',
+    buildPrompt(subs) {
+      const list = subs.join(', ');
+      return `Write press/media content for Nearby Future. Produce clearly labeled sections for each of the following formats: ${list}.
+
+FORMAT RULES PER TYPE:
+- Press release: inverted pyramid, lead with sharpest local finding, placeholder quote, data point, one reader CTA
+- Media pitch: 3–5 sentences — story angle, context, why it matters locally
+- Fact sheet: bullet format — lead stat, 3–5 supporting facts, 1 action item, source-ready
+
+Label each section clearly (e.g. "## Press release"). VOICE: Journalists need hooks. Open with specific local stat. Avoid advocacy. Include human/community angle.`;
+    }
+  }
+};
+
+const AUDIENCE_NOTES = {
+  residents:  'Audience: Local residents and families. Tone: warm, practical, reassuring. Never condescending. Give clear risk levels and specific protective actions.',
+  community:  'Audience: Community groups and schools. Tone: collaborative and accessible. Emphasize shared benefit and community-level actions.',
+  officials:  'Audience: Elected officials and public health leaders. Tone: professional, evidence-based, outcome-focused. Tie data to policy levers they can pull.',
+  healthcare: 'Audience: Healthcare professionals. Tone: clinical accuracy with plain-language parallels. Include patient-facing talking points.',
+  media:      'Audience: Local and national media. Tone: story-driven, fact-anchored, locally specific. Provide compelling hooks and reliable data points.'
+};
+
+const MASTER_PROMPT = `You are a content writer for Nearby Future, a civic health platform helping individuals and communities understand the health effects of local wildfire smoke.
+
+Always write in the Nearby Future voice:
+1. START LOCAL — anchor to a specific place, season, or community context first. Never open with a global claim.
+2. AVOID ANXIETY — never use: crisis, devastating, catastrophic, alarming, inevitable, doom. Frame content around everyday costs, not fear.
+3. NEUTRAL LANGUAGE — avoid politically coded terms. Prefer: air quality conditions, smoke exposure, health risk, local environmental patterns.
+4. EVERYDAY COSTS — connect health risks to kitchen table concerns: healthcare costs, missed school/work days, time spent outdoors.
+5. ALWAYS INCLUDE AN ACTION — every piece must end with or include a specific, achievable step. Never leave the reader without agency.
+6. CITE EVIDENCE — use real data from Nearby Future models, peer-reviewed research, EPA, CDC, and NOAA. Lead with the finding, follow with the source. Translate numbers into lived experience.
+7. BE INCLUSIVE — content must feel relevant and respectful across political backgrounds, income levels, and health literacy.
+
+Tone: Clear, warm, evidence-based, practical. Not preachy. Not panicked.
+Reading level: 7th-8th grade unless writing for professional audiences.`;
+
+// ── TRANSLATE ─────────────────────────────────────────────────────────────────
+async function runTranslation(isRegen = false) {
+  const btn    = document.getElementById('translate-btn');
+  const regen  = document.getElementById('regen-btn');
+  const errEl  = document.getElementById('translate-error');
+  errEl.style.display = 'none';
+
+  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
+  if (!apiKey) {
+    showErr(errEl, 'Please enter your API key for the selected provider.');
+    document.getElementById('api-key-input').focus();
+    return;
+  }
+
+  let sourceText;
+  if (isRegen) {
+    sourceText = lastSourceText;
+  } else {
+    sourceText = activeTab === 'text'
+      ? document.getElementById('source-text').value.trim()
+      : (document.getElementById('fetched-text').value.trim() || document.getElementById('source-url').value.trim());
+  }
+
+  if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
+
+  const selected = [...document.querySelectorAll('.chip input:checked')]
+    .map(cb => cb.value)
+    .filter(v => v !== 'custom');
+  if (!selected.length) { showErr(errEl, 'Please select at least one channel.'); return; }
+
+  const audience    = document.getElementById('audience-select').value;
+  const lengthInstr = getLengthInstruction();
+
+  // store for regen
+  lastSourceText = sourceText;
+  lastAudience   = audience;
+
+  btn.disabled   = true;
+  regen.disabled = true;
+  regen.classList.add('spinning');
+
+  const panel = document.getElementById('results-panel');
+  panel.innerHTML = '';
+
+  for (const channel of selected) {
+    const cfg      = CHANNELS[channel];
+    const subs     = getSubSelections(channel);
+    const loadEl   = mkLoading(cfg.label);
+    panel.appendChild(loadEl);
+    try {
+      const result = await callClaude(sourceText, cfg, subs, audience, apiKey, lengthInstr);
+      panel.removeChild(loadEl);
+      panel.appendChild(mkResult(cfg, result));
+    } catch(e) {
+      panel.removeChild(loadEl);
+      panel.appendChild(mkError(cfg.label, e.message));
+    }
+  }
+
+  btn.disabled = false;
+  regen.disabled = false;
+  regen.classList.remove('spinning');
+  setRegenEnabled(true);
+
+  if (!panel.children.length) {
+    panel.innerHTML = '<div class="empty"><p>No results generated. Please try again.</p></div>';
+  }
+}
+
+async function callClaude(sourceText, cfg, subs, audience, apiKey, lengthInstr = '') {
+  const provider = currentProvider();
+  const pcfg = PROVIDERS[provider];
+  const channelPrompt = cfg.buildPrompt(subs);
+  const lengthBlock = lengthInstr ? `\n\n${lengthInstr}` : '';
+  const prompt = `${MASTER_PROMPT}\n\n${AUDIENCE_NOTES[audience]}\n\n${channelPrompt}${lengthBlock}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above in the Nearby Future voice for the channel and audience specified. Keep the core facts and intent, but transform the language, structure, and framing entirely. Do not use any catastrophizing language. Output only the translated content with no preamble or explanation.`;
+
+  if (provider === 'anthropic') {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Anthropic API error ' + resp.status); }
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+  }
+
+  if (provider === 'openai') {
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'OpenAI API error ' + resp.status); }
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content?.trim() || '';
+  }
+
+  if (provider === 'google') {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 1000 } })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Gemini API error ' + resp.status); }
+    const data = await resp.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  }
+
+  if (provider === 'xai') {
+    const resp = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'xAI API error ' + resp.status); }
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content?.trim() || '';
+  }
+
+  throw new Error('Unknown provider: ' + provider);
+}
+
+// ── WRITING PRACTICE ──────────────────────────────────────────────────────────
+const FEEDBACK_PROMPT = `You are a writing coach for Nearby Future, a civic health platform. Your job is to give brief, constructive feedback on whether a piece of writing matches the Nearby Future brand voice.
+
+THE NEARBY FUTURE VOICE RULES:
+1. START LOCAL — anchor to a specific place, season, or community. Never open with a global claim.
+2. AVOID ANXIETY — no crisis, devastating, catastrophic, alarming, inevitable, doom. Frame through everyday costs (healthcare bills, missed school days, time outdoors), not fear.
+3. NEUTRAL LANGUAGE — avoid politically coded terms. Use: air quality conditions, smoke exposure, health risk, local environmental patterns.
+4. EVERYDAY COSTS — connect health risks to kitchen table concerns.
+5. ALWAYS INCLUDE AN ACTION — every piece must include a specific, achievable step.
+6. BE INCLUSIVE — relevant and respectful across political backgrounds, income levels, health literacy.
+
+YOUR RESPONSE FORMAT — respond ONLY with valid JSON, no markdown, no backticks:
+{
+  "verdict": "great" | "good" | "needs",
+  "verdictLabel": "Great work" | "Good, needs some adjustment" | "Not quite matching the guidelines",
+  "feedback": "2–4 sentences of specific, constructive coaching. Mention what works first if anything does. Point to specific rules that are or aren't being followed. Never rewrite the copy — guide the writer to improve it themselves. Be encouraging but honest."
+}
+
+The three verdict values map to:
+- "great": follows most or all guidelines well
+- "good": on the right track but has 1–2 specific issues to address  
+- "needs": missing several guidelines or has a fundamental tone mismatch`;
+
+async function getFeedback() {
+  const btn    = document.getElementById('feedback-btn');
+  const pane   = document.getElementById('feedback-pane');
+  const text   = document.getElementById('practice-input').value.trim();
+
+  if (!text) {
+    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please write something first.</p></div>`;
+    return;
+  }
+
+  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
+  if (!apiKey) {
+    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please enter your API key in the bar above.</p></div>`;
+    return;
+  }
+
+  btn.disabled = true;
+  pane.innerHTML = `<div class="feedback-empty"><div class="spin" style="margin:0 auto 0.75rem"></div><p>Reading your writing…</p></div>`;
+
+  try {
+    const provider = currentProvider();
+    const pcfg     = PROVIDERS[provider];
+    const messages = [{ role: 'user', content: `${FEEDBACK_PROMPT}\n\nPIECE TO EVALUATE:\n---\n${text.slice(0, 2000)}\n---` }];
+
+    let raw = '';
+
+    if (provider === 'anthropic') {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: pcfg.model, max_tokens: 400, messages })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
+      raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    } else if (provider === 'openai' || provider === 'xai') {
+      const url  = provider === 'openai' ? 'https://api.openai.com/v1/chat/completions' : 'https://api.x.ai/v1/chat/completions';
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({ model: pcfg.model, max_tokens: 400, messages })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
+      raw = data.choices?.[0]?.message?.content?.trim() || '';
+    } else if (provider === 'google') {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: messages[0].content }] }], generationConfig: { maxOutputTokens: 400 } })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
+      raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    }
+
+    // parse JSON — strip any accidental markdown fences
+    const clean  = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    const verdictClass = result.verdict === 'great' ? 'great' : result.verdict === 'good' ? 'good' : 'needs';
+    const icon = result.verdict === 'great' ? '✓' : result.verdict === 'good' ? '◐' : '○';
+
+    pane.innerHTML = `
+      <div class="feedback-result">
+        <div class="feedback-verdict">
+          <span class="verdict-badge ${verdictClass}">
+            <span class="verdict-dot"></span>
+            ${xhtml(result.verdictLabel)}
+          </span>
+        </div>
+        <div class="feedback-body">${xhtml(result.feedback)}</div>
+      </div>`;
+
+  } catch(e) {
+    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Couldn't get feedback. ${xhtml(e.message)}</p></div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── UI BUILDERS ───────────────────────────────────────────────────────────────
+function mkLoading(label) {
+  const el = document.createElement('div');
+  el.className = 'loading-card';
+  el.innerHTML = `<div class="spin"></div><div class="loading-txt">Translating for <span class="loading-ch">${label}</span>…</div>`;
+  return el;
+}
+
+function mkResult(cfg, text) {
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  const tags = [...text.matchAll(/#\w+/g)].map(m => m[0]).slice(0, 6);
+  const body = tags.length ? text.replace(/#\w+/g, '').trim() : text;
+  el.innerHTML = `
+    <div class="r-head">
+      <div class="r-label">${cfg.emoji}&nbsp; ${cfg.label}</div>
+      <button class="copy-btn" onclick="doCopy(this,\`${esc(text)}\`)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+    </div>
+    <div class="r-body">
+      <div class="r-text">${xhtml(body)}</div>
+      ${tags.length ? `<div class="r-tags">${tags.map(t=>`<span class="r-tag">${xhtml(t)}</span>`).join('')}</div>` : ''}
+    </div>`;
+  return el;
+}
+
+function mkError(label, msg) {
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  el.innerHTML = `
+    <div class="r-head"><div class="r-label">${label}</div></div>
+    <div class="r-body">
+      <div class="err" style="display:flex">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        ${xhtml(msg||'Translation failed. Please try again.')}
+      </div>
+    </div>`;
+  return el;
+}
+
+async function doCopy(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Copied`;
+    btn.classList.add('done');
+    setTimeout(() => {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy`;
+      btn.classList.remove('done');
+    }, 2000);
+  } catch(e) {}
+}
+
+function showErr(el, msg) {
+  el.style.display = 'flex';
+  el.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>${msg}`;
+}
+
+function xhtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s)   { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+</script>
+</body>
+</html>
