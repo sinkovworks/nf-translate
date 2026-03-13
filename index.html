@@ -107,102 +107,6 @@
     border-radius: 2px;
   }
 
-  /* ─── API KEY BAR ──────────────────────────────────────── */
-  .key-bar {
-    background: var(--off-white);
-    border-bottom: 1px solid var(--rule);
-    padding: 4px 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .key-label {
-    font-size: 0.58rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-  .provider-select {
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.68rem;
-    font-weight: 500;
-    color: var(--ink);
-    background: var(--white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    padding: 2px 18px 2px 7px;
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 4px center;
-    background-size: 10px;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: border-color 0.14s;
-  }
-  .provider-select:focus { border-color: var(--teal); }
-  .provider-select option { background: white; }
-
-  .key-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex: 1;
-    max-width: 300px;
-    min-width: 140px;
-  }
-  .key-input {
-    width: 100%;
-    padding: 3px 24px 3px 7px;
-    font-family: 'Inter Tight', monospace;
-    font-size: 0.68rem;
-    background: var(--white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    color: var(--ink-mid);
-    outline: none;
-    transition: border-color 0.14s;
-  }
-  .key-input:focus { border-color: var(--teal); }
-  .key-input::placeholder { color: var(--muted-light); }
-  .key-eye {
-    position: absolute;
-    right: 6px;
-    background: none;
-    border: none;
-    color: var(--muted-light);
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    transition: color 0.14s;
-  }
-  .key-eye:hover { color: var(--ink); }
-  .key-eye svg { width: 11px; height: 11px; }
-
-  .key-status {
-    font-size: 0.58rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .key-status.ok    { color: var(--sage); }
-  .key-status.empty { color: var(--muted-light); }
-  .key-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
-  .key-link {
-    margin-left: auto;
-    font-size: 0.62rem;
-    color: var(--muted);
-  }
-  .key-link a { color: var(--teal); text-decoration: none; transition: color 0.14s; }
-  .key-link a:hover { color: var(--ink); text-decoration: underline; }
-
   /* ─── HERO — white, image below headline (slide 1 style) ── */
   .hero {
     background: var(--white);
@@ -997,35 +901,6 @@
   <span class="badge">Beta</span>
 </header>
 
-<!-- ─── API KEY BAR ─────────────────────────────────────── -->
-<div class="key-bar">
-  <span class="key-label">Provider</span>
-  <select class="provider-select" id="provider-select" onchange="onProviderChange()">
-    <option value="anthropic">Anthropic (Claude)</option>
-    <option value="openai">OpenAI (GPT)</option>
-    <option value="google">Google (Gemini)</option>
-    <option value="xai">xAI (Grok)</option>
-  </select>
-  <span class="key-label" style="margin-left:4px">API Key</span>
-  <div class="key-wrap">
-    <input class="key-input" id="api-key-input" type="password"
-      placeholder="sk-ant-api03-…" oninput="saveKey()"
-      autocomplete="off" spellcheck="false">
-    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
-      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-      </svg>
-    </button>
-  </div>
-  <div class="key-status empty" id="key-status">
-    <span class="key-dot"></span>
-    <span id="key-status-text">No key saved</span>
-  </div>
-  <span class="key-link">
-    <a id="key-console-link" href="https://console.anthropic.com/keys" target="_blank">Get API key</a>
-    · Stored only in your browser
-  </span>
-</div>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
 <div class="hero">
@@ -1071,7 +946,7 @@
   <div class="input-card">
     <div class="card-head">
       <span class="card-title">Source Content</span>
-      <span class="card-step">Step 1 of 2</span>
+
     </div>
     <div class="card-body">
 
@@ -1103,14 +978,14 @@
         <textarea id="fetched-text" placeholder="Fetched content will appear here…" style="margin-top:0.875rem;min-height:110px"></textarea>
       </div>
 
-      <span class="sec-label">Channels — Step 2</span>
+      <span class="sec-label">Channels</span>
       <div class="chips">
 
         <!-- Website & UI -->
         <div class="channel-block">
           <div class="chip-row">
-            <label class="chip on" id="chip-website">
-              <input type="checkbox" value="website" checked>
+            <label class="chip" id="chip-website">
+              <input type="checkbox" value="website">
               <span class="chip-ico">🌐</span>
               <span class="chip-lbl">Website &amp; UI</span>
             </label>
@@ -1121,8 +996,8 @@
           <div class="sub-panel" id="sub-website">
             <span class="sub-panel-label">Formats</span>
             <div class="sub-options" id="subopts-website">
-              <label class="sub-opt on"><input type="checkbox" value="Homepage hero" checked><span class="sub-check"></span>Homepage hero</label>
-              <label class="sub-opt on"><input type="checkbox" value="Feature description" checked><span class="sub-check"></span>Feature description</label>
+              <label class="sub-opt"><input type="checkbox" value="Homepage hero"><span class="sub-check"></span>Homepage hero</label>
+              <label class="sub-opt"><input type="checkbox" value="Feature description"><span class="sub-check"></span>Feature description</label>
               <label class="sub-opt"><input type="checkbox" value="Tooltip"><span class="sub-check"></span>Tooltip</label>
               <label class="sub-opt"><input type="checkbox" value="CTA copy"><span class="sub-check"></span>CTA copy</label>
               <label class="sub-opt"><input type="checkbox" value="Onboarding copy"><span class="sub-check"></span>Onboarding copy</label>
@@ -1133,8 +1008,8 @@
         <!-- Social Media -->
         <div class="channel-block">
           <div class="chip-row">
-            <label class="chip on" id="chip-social">
-              <input type="checkbox" value="social" checked>
+            <label class="chip" id="chip-social">
+              <input type="checkbox" value="social">
               <span class="chip-ico">📱</span>
               <span class="chip-lbl">Social Media</span>
             </label>
@@ -1145,8 +1020,8 @@
           <div class="sub-panel" id="sub-social">
             <span class="sub-panel-label">Platforms</span>
             <div class="sub-options" id="subopts-social">
-              <label class="sub-opt on"><input type="checkbox" value="Instagram" checked><span class="sub-check"></span>Instagram</label>
-              <label class="sub-opt on"><input type="checkbox" value="X/Twitter" checked><span class="sub-check"></span>X/Twitter</label>
+              <label class="sub-opt"><input type="checkbox" value="Instagram"><span class="sub-check"></span>Instagram</label>
+              <label class="sub-opt"><input type="checkbox" value="X/Twitter"><span class="sub-check"></span>X/Twitter</label>
               <label class="sub-opt"><input type="checkbox" value="Facebook"><span class="sub-check"></span>Facebook</label>
               <label class="sub-opt"><input type="checkbox" value="LinkedIn"><span class="sub-check"></span>LinkedIn</label>
             </div>
@@ -1168,7 +1043,7 @@
           <div class="sub-panel" id="sub-policy">
             <span class="sub-panel-label">Formats</span>
             <div class="sub-options" id="subopts-policy">
-              <label class="sub-opt on"><input type="checkbox" value="One-pager" checked><span class="sub-check"></span>One-pager</label>
+              <label class="sub-opt"><input type="checkbox" value="One-pager"><span class="sub-check"></span>One-pager</label>
               <label class="sub-opt"><input type="checkbox" value="Full brief"><span class="sub-check"></span>Full brief</label>
               <label class="sub-opt"><input type="checkbox" value="Healthcare provider guide"><span class="sub-check"></span>Healthcare provider guide</label>
               <label class="sub-opt"><input type="checkbox" value="Elected official summary"><span class="sub-check"></span>Elected official summary</label>
@@ -1191,8 +1066,8 @@
           <div class="sub-panel" id="sub-press">
             <span class="sub-panel-label">Formats</span>
             <div class="sub-options" id="subopts-press">
-              <label class="sub-opt on"><input type="checkbox" value="Press release" checked><span class="sub-check"></span>Press release</label>
-              <label class="sub-opt on"><input type="checkbox" value="Media pitch" checked><span class="sub-check"></span>Media pitch</label>
+              <label class="sub-opt"><input type="checkbox" value="Press release"><span class="sub-check"></span>Press release</label>
+              <label class="sub-opt"><input type="checkbox" value="Media pitch"><span class="sub-check"></span>Media pitch</label>
               <label class="sub-opt"><input type="checkbox" value="Fact sheet"><span class="sub-check"></span>Fact sheet</label>
             </div>
           </div>
@@ -1300,6 +1175,7 @@ let activeTab = 'text';
 let activeUnit = 'words'; // 'words' | 'chars'
 let lastSourceText = '';
 let lastAudience = '';
+let lastSelectedChannels = [];
 
 // ── LENGTH CONTROL ────────────────────────────────────────────────────────────
 function setUnit(unit) {
@@ -1370,81 +1246,9 @@ function setRegenEnabled(enabled) {
   btn.disabled = !enabled;
 }
 
-// ── PROVIDER CONFIG ───────────────────────────────────────────────────────────
-const PROVIDERS = {
-  anthropic: {
-    name: 'Anthropic (Claude)',
-    placeholder: 'sk-ant-api03-…',
-    consoleUrl: 'https://console.anthropic.com/keys',
-    model: 'claude-sonnet-4-20250514',
-  },
-  openai: {
-    name: 'OpenAI (GPT)',
-    placeholder: 'sk-…',
-    consoleUrl: 'https://platform.openai.com/api-keys',
-    model: 'gpt-4o',
-  },
-  google: {
-    name: 'Google (Gemini)',
-    placeholder: 'AIza…',
-    consoleUrl: 'https://aistudio.google.com/app/apikey',
-    model: 'gemini-2.0-flash',
-  },
-  xai: {
-    name: 'xAI (Grok)',
-    placeholder: 'xai-…',
-    consoleUrl: 'https://console.x.ai/',
-    model: 'grok-3-latest',
-  },
-};
-
-function currentProvider() {
-  return document.getElementById('provider-select').value;
-}
-
-function onProviderChange() {
-  const p = currentProvider();
-  const cfg = PROVIDERS[p];
-  document.getElementById('api-key-input').placeholder = cfg.placeholder;
-  document.getElementById('key-console-link').href = cfg.consoleUrl;
-  const saved = localStorage.getItem('nf_key_' + p);
-  document.getElementById('api-key-input').value = saved || '';
-  setKeyStatus(!!saved);
-  localStorage.setItem('nf_provider', p);
-}
-
-// ── API KEY ───────────────────────────────────────────────────────────────────
-function saveKey() {
-  const p   = currentProvider();
-  const val = document.getElementById('api-key-input').value.trim();
-  if (val) { localStorage.setItem('nf_key_' + p, val); setKeyStatus(true); }
-  else     { localStorage.removeItem('nf_key_' + p);   setKeyStatus(false); }
-}
-
-function setKeyStatus(ok) {
-  const el  = document.getElementById('key-status');
-  const txt = document.getElementById('key-status-text');
-  el.className = 'key-status ' + (ok ? 'ok' : 'empty');
-  txt.textContent = ok ? 'Key saved' : 'No key saved';
-}
-
-function toggleKeyVisibility() {
-  const inp  = document.getElementById('api-key-input');
-  const icon = document.getElementById('key-eye-icon');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
-  } else {
-    inp.type = 'password';
-    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
-  }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const savedProvider = localStorage.getItem('nf_provider') || 'anthropic';
-  document.getElementById('provider-select').value = savedProvider;
-  onProviderChange();
-});
+// ── API CONFIG ────────────────────────────────────────────────────────────────
+const API_KEY   = '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';
+const API_MODEL = 'claude-sonnet-4-20250514';
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -1510,9 +1314,6 @@ async function fetchUrl() {
   errEl.style.display = 'none';
   if (!url) { showErr(errEl, 'Please enter a URL.'); return; }
 
-  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
-  if (!apiKey) { showErr(errEl, 'Please enter your API key above first.'); return; }
-
   fetchBtn.disabled = true;
   fetchBtn.textContent = 'Fetching…';
   fetched.value = '';
@@ -1522,7 +1323,7 @@ async function fetchUrl() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        'x-api-key': API_KEY,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -1605,6 +1406,12 @@ FORMAT RULES PER TYPE:
 
 Label each section clearly (e.g. "## Press release"). VOICE: Journalists need hooks. Open with specific local stat. Avoid advocacy. Include human/community angle.`;
     }
+  },
+  custom: {
+    label: 'Custom Length', emoji: '✏️',
+    buildPrompt(subs, lengthInstr) {
+      return `Rewrite the source content in the Nearby Future voice as a single cohesive block of copy. Do not use channel-specific formatting, headers, or labels. Just produce clean, flowing prose in the Nearby Future voice. ${lengthInstr || ''}`;
+    }
   }
 };
 
@@ -1637,13 +1444,6 @@ async function runTranslation(isRegen = false) {
   const errEl  = document.getElementById('translate-error');
   errEl.style.display = 'none';
 
-  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
-  if (!apiKey) {
-    showErr(errEl, 'Please enter your API key for the selected provider.');
-    document.getElementById('api-key-input').focus();
-    return;
-  }
-
   let sourceText;
   if (isRegen) {
     sourceText = lastSourceText;
@@ -1655,15 +1455,13 @@ async function runTranslation(isRegen = false) {
 
   if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
 
-  const selected = [...document.querySelectorAll('.chip input:checked')]
-    .map(cb => cb.value)
-    .filter(v => v !== 'custom');
-  const customOnly = !selected.length && document.getElementById('chip-custom')?.querySelector('input')?.checked;
-  if (!selected.length && !customOnly) { showErr(errEl, 'Please select at least one channel.'); return; }
-  if (!selected.length) { showErr(errEl, 'Please also select at least one channel (Website, Social, Policy, or Press).'); return; }
-
   const audience    = document.getElementById('audience-select').value;
   const lengthInstr = getLengthInstruction();
+
+  let selected = [...document.querySelectorAll('.chip input:checked')]
+    .map(cb => cb.value);
+
+  if (!selected.length) { showErr(errEl, 'Please select at least one channel.'); return; }
 
   // store for regen
   lastSourceText = sourceText;
@@ -1677,13 +1475,15 @@ async function runTranslation(isRegen = false) {
   panel.innerHTML = '';
 
   for (const channel of selected) {
-    const cfg      = CHANNELS[channel];
-    const subs     = getSubSelections(channel);
-    const loadEl   = mkLoading(cfg.label);
+    const cfg    = CHANNELS[channel];
+    const subs   = getSubSelections(channel);
+    const prompt = channel === 'custom'
+      ? cfg.buildPrompt(subs, lengthInstr)
+      : cfg.buildPrompt(subs) + (lengthInstr ? `\n\n${lengthInstr}` : '');
+    const loadEl = mkLoading(cfg.label);
     panel.appendChild(loadEl);
     try {
-      const result = await callClaude(sourceText, cfg, subs, audience, apiKey, lengthInstr);
-      panel.removeChild(loadEl);
+      const result = await callClaude(sourceText, prompt, audience);      panel.removeChild(loadEl);
       panel.appendChild(mkResult(cfg, result));
     } catch(e) {
       panel.removeChild(loadEl);
@@ -1701,59 +1501,19 @@ async function runTranslation(isRegen = false) {
   }
 }
 
-async function callClaude(sourceText, cfg, subs, audience, apiKey, lengthInstr = '') {
-  const provider = currentProvider();
-  const pcfg = PROVIDERS[provider];
-  const channelPrompt = cfg.buildPrompt(subs);
-  const lengthBlock = lengthInstr ? `\n\n${lengthInstr}` : '';
-  const prompt = `${MASTER_PROMPT}\n\n${AUDIENCE_NOTES[audience]}\n\n${channelPrompt}${lengthBlock}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above in the Nearby Future voice for the channel and audience specified. Keep the core facts and intent, but transform the language, structure, and framing entirely. Do not use any catastrophizing language. Output only the translated content with no preamble or explanation.`;
+async function callClaude(sourceText, channelPrompt, audience) {
+  const lengthBlock = '';
+  const prompt = `${MASTER_PROMPT}\n\n${AUDIENCE_NOTES[audience]}\n\n${channelPrompt}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above in the Nearby Future voice for the channel and audience specified. Keep the core facts and intent, but transform the language, structure, and framing entirely. Do not use any catastrophizing language. Output only the translated content with no preamble or explanation.`;
 
-  if (provider === 'anthropic') {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
-    });
-    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Anthropic API error ' + resp.status); }
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
-  }
-
-  if (provider === 'openai') {
-    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
-    });
-    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'OpenAI API error ' + resp.status); }
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content?.trim() || '';
-  }
-
-  if (provider === 'google') {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 1000 } })
-    });
-    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Gemini API error ' + resp.status); }
-    const data = await resp.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-  }
-
-  if (provider === 'xai') {
-    const resp = await fetch('https://api.x.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
-    });
-    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'xAI API error ' + resp.status); }
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content?.trim() || '';
-  }
-
-  throw new Error('Unknown provider: ' + provider);
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: API_MODEL, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'API error ' + resp.status); }
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
 }
 
 // ── WRITING PRACTICE ──────────────────────────────────────────────────────────
@@ -1789,51 +1549,19 @@ async function getFeedback() {
     return;
   }
 
-  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
-  if (!apiKey) {
-    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please enter your API key in the bar above.</p></div>`;
-    return;
-  }
-
   btn.disabled = true;
   pane.innerHTML = `<div class="feedback-empty"><div class="spin" style="margin:0 auto 0.75rem"></div><p>Reading your writing…</p></div>`;
 
   try {
-    const provider = currentProvider();
-    const pcfg     = PROVIDERS[provider];
     const messages = [{ role: 'user', content: `${FEEDBACK_PROMPT}\n\nPIECE TO EVALUATE:\n---\n${text.slice(0, 2000)}\n---` }];
-
-    let raw = '';
-
-    if (provider === 'anthropic') {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: pcfg.model, max_tokens: 400, messages })
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
-      raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
-    } else if (provider === 'openai' || provider === 'xai') {
-      const url  = provider === 'openai' ? 'https://api.openai.com/v1/chat/completions' : 'https://api.x.ai/v1/chat/completions';
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-        body: JSON.stringify({ model: pcfg.model, max_tokens: 400, messages })
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
-      raw = data.choices?.[0]?.message?.content?.trim() || '';
-    } else if (provider === 'google') {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: messages[0].content }] }], generationConfig: { maxOutputTokens: 400 } })
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
-      raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-    }
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: API_MODEL, max_tokens: 400, messages })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data?.error?.message || 'API error ' + resp.status);
+    const raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
 
     // parse JSON — strip any accidental markdown fences
     const clean  = raw.replace(/```json|```/g, '').trim();
