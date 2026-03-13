@@ -1658,7 +1658,9 @@ async function runTranslation(isRegen = false) {
   const selected = [...document.querySelectorAll('.chip input:checked')]
     .map(cb => cb.value)
     .filter(v => v !== 'custom');
-  if (!selected.length) { showErr(errEl, 'Please select at least one channel.'); return; }
+  const customOnly = !selected.length && document.getElementById('chip-custom')?.querySelector('input')?.checked;
+  if (!selected.length && !customOnly) { showErr(errEl, 'Please select at least one channel.'); return; }
+  if (!selected.length) { showErr(errEl, 'Please also select at least one channel (Website, Social, Policy, or Press).'); return; }
 
   const audience    = document.getElementById('audience-select').value;
   const lengthInstr = getLengthInstruction();
