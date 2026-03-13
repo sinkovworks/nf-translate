@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nearby Future — Content Translator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Feijoa via system fallback — closest available Google Font approximation */
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,500&display=swap');
+
+  :root {
+    /* Brand palette from color sheet */
+    --white:       #FFFFFF;
+    --off-white:   #F7F5F2;
+    --ink:         #0A0A0A;
+    --ink-mid:     #2A2A2A;
+    --muted:       #888888;
+    --muted-light: #BBBBBB;
+    --rule:        #E0DDD8;
+    --rule-dark:   #C8C4BE;
+
+    /* Brand accent colors — from palette */
+    --teal:        #4A8FA0;
+    --teal-light:  #7BB5C4;
+    --teal-bg:     #EBF4F7;
+    --sage:        #7BA882;
+    --sage-light:  #A8C8AC;
+    --sage-bg:     #EFF6F0;
+    --sand:        #C4A882;
+    --amber:       #D4962A;
+    --rose:        #D47080;
+
+    /* UI */
+    --accent:      var(--teal);
+    --accent-bg:   var(--teal-bg);
+    --r:           3px;
+    --r2:          6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter Tight', 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Feijoa — use Playfair Display as the closest available web serif */
+  .feijoa {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-weight: 500;
+  }
+
+  /* ─── HEADER ───────────────────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    height: 36px;
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .logo-mark { width: 44px; height: 30px; flex-shrink: 0; }
+  .logo-wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1;
+  }
+  .logo-wordmark strong {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  .logo-wordmark span {
+    font-size: 0.58rem;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .badge {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--rule-dark);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* ─── API KEY BAR ──────────────────────────────────────── */
+  .key-bar {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .key-label {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .provider-select {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    padding: 2px 18px 2px 7px;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.14s;
+  }
+  .provider-select:focus { border-color: var(--teal); }
+  .provider-select option { background: white; }
+
+  .key-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 300px;
+    min-width: 140px;
+  }
+  .key-input {
+    width: 100%;
+    padding: 3px 24px 3px 7px;
+    font-family: 'Inter Tight', monospace;
+    font-size: 0.68rem;
+    background: var(--white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    color: var(--ink-mid);
+    outline: none;
+    transition: border-color 0.14s;
+  }
+  .key-input:focus { border-color: var(--teal); }
+  .key-input::placeholder { color: var(--muted-light); }
+  .key-eye {
+    position: absolute;
+    right: 6px;
+    background: none;
+    border: none;
+    color: var(--muted-light);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    transition: color 0.14s;
+  }
+  .key-eye:hover { color: var(--ink); }
+  .key-eye svg { width: 11px; height: 11px; }
+
+  .key-status {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .key-status.ok    { color: var(--sage); }
+  .key-status.empty { color: var(--muted-light); }
+  .key-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+  .key-link {
+    margin-left: auto;
+    font-size: 0.62rem;
+    color: var(--muted);
+  }
+  .key-link a { color: var(--teal); text-decoration: none; transition: color 0.14s; }
+  .key-link a:hover { color: var(--ink); text-decoration: underline; }
+
+  /* ─── HERO — white, image below headline (slide 1 style) ── */
+  .hero {
+    background: var(--white);
+    padding: 3rem 2.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.75rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.01em;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 780px;
+  }
+  .hero-title em { font-style: italic; }
+  .hero-sub {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 320px;
+    padding-top: 0.5rem;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+  @media (max-width: 680px) { .hero-sub { display: none; } }
+
+
+
+  /* ─── PILLARS — teal rule lines, like slide 2 ──────────── */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 2px solid var(--teal);
+  }
+  @media (max-width: 640px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    padding: 1rem 2.5rem;
+    border-top: 2px solid var(--teal);
+    border-right: 1px solid var(--rule);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--white);
+  }
+  .pillar:last-child { border-right: none; }
+  .pillar-n {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--teal);
+    letter-spacing: 0.08em;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .pillar-body strong {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .pillar-body span {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.45;
+    font-weight: 400;
+  }
+
+  /* ─── APP GRID ─────────────────────────────────────────── */
+  .app {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 2.5rem 2.5rem 6rem;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (max-width: 880px) { .app { grid-template-columns: 1fr; } }
+
+  /* ─── INPUT PANEL ──────────────────────────────────────── */
+  .input-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: var(--r2);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 1rem 1.4rem;
+    border-bottom: 2px solid var(--teal);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    background: var(--off-white);
+  }
+  .card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .card-step {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 1.4rem; }
+
+  /* ─── TABS ─────────────────────────────────────────────── */
+  .tabs {
+    display: flex;
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .tab {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--off-white);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.14s, color 0.14s;
+  }
+  .tab + .tab { border-left: 1px solid var(--rule-dark); }
+  .tab svg { width: 12px; height: 12px; }
+  .tab.active { background: var(--ink); color: var(--white); }
+  .tab:not(.active):hover { background: var(--rule); color: var(--ink); }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ─── FORM CONTROLS ────────────────────────────────────── */
+  textarea, .url-input {
+    width: 100%;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    outline: none;
+    line-height: 1.65;
+    transition: border-color 0.14s, background 0.14s;
+  }
+  textarea:focus, .url-input:focus { border-color: var(--teal); background: var(--white); }
+  textarea::placeholder, .url-input::placeholder { color: var(--muted-light); }
+  textarea { min-height: 155px; padding: 0.8rem 0.9rem; resize: vertical; }
+  .url-input { padding: 0.58rem 0.9rem; }
+
+  .url-row { display: flex; gap: 7px; }
+  .fetch-btn {
+    flex-shrink: 0;
+    padding: 0.58rem 1rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--r);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.14s;
+  }
+  .fetch-btn:hover { background: var(--teal); }
+  .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .note {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .note svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+  /* ─── SECTION LABEL ────────────────────────────────────── */
+  .sec-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 1.25rem 0 0.6rem;
+    display: block;
+  }
+
+  /* ─── CHANNEL CHIPS ────────────────────────────────────── */
+  .chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.55rem 0.875rem;
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.14s, background 0.14s;
+  }
+  .chip:hover { border-color: var(--teal-light); background: var(--teal-bg); }
+  .chip.on {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .chip input { display: none; }
+  .chip-ico { font-size: 0.82rem; line-height: 1; }
+  .chip-lbl {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.14s;
+  }
+  .chip.on .chip-lbl { color: var(--white); }
+
+  /* ─── AUDIENCE SELECT ──────────────────────────────────── */
+  .aud-select {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 0.9rem;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.14s;
+  }
+  .aud-select:focus { border-color: var(--teal); }
+
+  /* ─── TRANSLATE BUTTON ─────────────────────────────────── */
+  .go-btn {
+    width: 100%;
+    margin-top: 1.4rem;
+    padding: 0.95rem 1.5rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--r);
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 500;
+    font-style: italic;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: background 0.14s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .go-btn:hover { background: var(--teal); }
+  .go-btn:active { transform: scale(0.99); }
+  .go-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .go-btn svg { width: 15px; height: 15px; }
+
+  /* ─── ERROR ────────────────────────────────────────────── */
+  .err {
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    background: #FEF3F2;
+    border: 1px solid #FECDCA;
+    border-radius: var(--r);
+    font-size: 0.8rem;
+    color: #B42318;
+    line-height: 1.5;
+  }
+  .err svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
+
+  /* ─── RESULTS ──────────────────────────────────────────── */
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .empty {
+    border: 1px dashed var(--rule-dark);
+    border-radius: var(--r2);
+    padding: 4.5rem 2rem;
+    text-align: center;
+    background: var(--off-white);
+  }
+  .empty svg { width: 30px; height: 30px; color: var(--rule-dark); margin-bottom: 1rem; }
+  .empty p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; max-width: 240px; margin: 0 auto; }
+
+  /* Result cards — white with teal top border, like slide 2 table rows */
+  .result-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--teal);
+    border-radius: var(--r2);
+    overflow: hidden;
+    animation: up 0.28s ease both;
+  }
+  @keyframes up {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .r-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid var(--rule);
+    background: var(--off-white);
+  }
+  .r-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .copy-btn {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    padding: 3px 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: border-color 0.14s, color 0.14s;
+  }
+  .copy-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .copy-btn.done  { color: var(--sage); border-color: var(--sage); }
+  .copy-btn svg { width: 10px; height: 10px; }
+
+  .r-body { padding: 1.4rem; }
+  .r-text {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--ink-mid);
+    white-space: pre-wrap;
+  }
+  .r-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .r-tag {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--teal);
+    background: var(--teal-bg);
+    border: 1px solid var(--teal-light);
+    border-radius: 2px;
+    padding: 2px 8px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── LOADING ──────────────────────────────────────────── */
+  .loading-card {
+    background: var(--off-white);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--teal-light);
+    border-radius: var(--r2);
+    padding: 1.6rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: up 0.2s ease both;
+  }
+  .spin {
+    width: 18px; height: 18px;
+    border: 2px solid var(--rule-dark);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: rotate 0.65s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  .loading-txt { font-size: 0.83rem; color: var(--muted); }
+  .loading-ch { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ──────────────────────────────────────────── -->
+<header>
+  <span class="badge">Nearby Future · Content Translator</span>
+  <span class="badge">Beta</span>
+</header>
+
+<!-- ─── API KEY BAR ─────────────────────────────────────── -->
+<div class="key-bar">
+  <span class="key-label">Provider</span>
+  <select class="provider-select" id="provider-select" onchange="onProviderChange()">
+    <option value="anthropic">Anthropic (Claude)</option>
+    <option value="openai">OpenAI (GPT)</option>
+    <option value="google">Google (Gemini)</option>
+    <option value="xai">xAI (Grok)</option>
+  </select>
+  <span class="key-label" style="margin-left:4px">API Key</span>
+  <div class="key-wrap">
+    <input class="key-input" id="api-key-input" type="password"
+      placeholder="sk-ant-api03-…" oninput="saveKey()"
+      autocomplete="off" spellcheck="false">
+    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
+      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+    </button>
+  </div>
+  <div class="key-status empty" id="key-status">
+    <span class="key-dot"></span>
+    <span id="key-status-text">No key saved</span>
+  </div>
+  <span class="key-link">
+    <a id="key-console-link" href="https://console.anthropic.com/keys" target="_blank">Get API key</a>
+    · Stored only in your browser
+  </span>
+</div>
+
+<!-- ─── HERO ─────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-top">
+    <div>
+      <p class="hero-eyebrow">AI-powered voice translation tool</p>
+      <h1 class="hero-title">Translate content into<br>the <em>Nearby Future</em> voice</h1>
+    </div>
+    <p class="hero-sub">Paste text or link to a page. Select your channels. Get content that's grounded, local, and gives people something to do.</p>
+  </div>
+
+</div>
+
+<!-- ─── PILLARS ──────────────────────────────────────────── -->
+<div class="pillars">
+  <div class="pillar">
+    <span class="pillar-n">01</span>
+    <div class="pillar-body">
+      <strong>Avoid Anxiety</strong>
+      <span>Kitchen table framing. No doom. No catastrophizing.</span>
+    </div>
+  </div>
+  <div class="pillar">
+    <span class="pillar-n">02</span>
+    <div class="pillar-body">
+      <strong>Near-Term &amp; Nearby</strong>
+      <span>Start local, start now. Specific place, specific season.</span>
+    </div>
+  </div>
+  <div class="pillar">
+    <span class="pillar-n">03</span>
+    <div class="pillar-body">
+      <strong>Give Everyone Agency</strong>
+      <span>Every piece ends with a clear, achievable action.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── APP ───────────────────────────────────────────────── -->
+<div class="app">
+
+  <!-- Input Panel -->
+  <div class="input-card">
+    <div class="card-head">
+      <span class="card-title">Source Content</span>
+      <span class="card-step">Step 1 of 2</span>
+    </div>
+    <div class="card-body">
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('text',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h12v2H3z"/></svg>
+          Paste text
+        </button>
+        <button class="tab" onclick="switchTab('url',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+          Link to page
+        </button>
+      </div>
+
+      <div class="tab-pane active" id="tab-text">
+        <textarea id="source-text" placeholder="Paste a press release, fact sheet, social post, policy brief, or any existing content here…"></textarea>
+      </div>
+
+      <div class="tab-pane" id="tab-url">
+        <div class="url-row">
+          <input class="url-input" id="source-url" type="url" placeholder="https://example.com/article">
+          <button class="fetch-btn" id="fetch-btn" onclick="fetchUrl()">Fetch</button>
+        </div>
+        <div class="note">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Page text will be extracted for review before translating.
+        </div>
+        <div id="url-error" class="err" style="margin-top:0.6rem"></div>
+        <textarea id="fetched-text" placeholder="Fetched content will appear here…" style="margin-top:0.875rem;min-height:110px"></textarea>
+      </div>
+
+      <span class="sec-label">Channels — Step 2</span>
+      <div class="chips">
+        <label class="chip on" id="chip-website">
+          <input type="checkbox" value="website" checked>
+          <span class="chip-ico">🌐</span>
+          <span class="chip-lbl">Website &amp; UI</span>
+        </label>
+        <label class="chip on" id="chip-social">
+          <input type="checkbox" value="social" checked>
+          <span class="chip-ico">📱</span>
+          <span class="chip-lbl">Social Media</span>
+        </label>
+        <label class="chip" id="chip-policy">
+          <input type="checkbox" value="policy">
+          <span class="chip-ico">📋</span>
+          <span class="chip-lbl">Policy &amp; Reports</span>
+        </label>
+        <label class="chip" id="chip-press">
+          <input type="checkbox" value="press">
+          <span class="chip-ico">📰</span>
+          <span class="chip-lbl">Press &amp; Media</span>
+        </label>
+      </div>
+
+      <span class="sec-label">Primary Audience</span>
+      <select class="aud-select" id="audience-select">
+        <option value="residents">Local residents &amp; families</option>
+        <option value="community">Community groups &amp; schools</option>
+        <option value="officials">Elected officials &amp; public health leaders</option>
+        <option value="healthcare">Healthcare professionals</option>
+        <option value="media">Local &amp; national media</option>
+      </select>
+
+      <button class="go-btn" id="translate-btn" onclick="runTranslation()">
+        Translate to Nearby Future Voice
+      </button>
+      <div id="translate-error" class="err"></div>
+
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results-panel">
+    <div class="empty" id="empty-state">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+      <p>Your translated content will appear here — one card per channel.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let activeTab = 'text';
+
+// ── PROVIDER CONFIG ───────────────────────────────────────────────────────────
+const PROVIDERS = {
+  anthropic: {
+    name: 'Anthropic (Claude)',
+    placeholder: 'sk-ant-api03-…',
+    consoleUrl: 'https://console.anthropic.com/keys',
+    model: 'claude-sonnet-4-20250514',
+  },
+  openai: {
+    name: 'OpenAI (GPT)',
+    placeholder: 'sk-…',
+    consoleUrl: 'https://platform.openai.com/api-keys',
+    model: 'gpt-4o',
+  },
+  google: {
+    name: 'Google (Gemini)',
+    placeholder: 'AIza…',
+    consoleUrl: 'https://aistudio.google.com/app/apikey',
+    model: 'gemini-2.0-flash',
+  },
+  xai: {
+    name: 'xAI (Grok)',
+    placeholder: 'xai-…',
+    consoleUrl: 'https://console.x.ai/',
+    model: 'grok-3-latest',
+  },
+};
+
+function currentProvider() {
+  return document.getElementById('provider-select').value;
+}
+
+function onProviderChange() {
+  const p = currentProvider();
+  const cfg = PROVIDERS[p];
+  document.getElementById('api-key-input').placeholder = cfg.placeholder;
+  document.getElementById('key-console-link').href = cfg.consoleUrl;
+  const saved = localStorage.getItem('nf_key_' + p);
+  document.getElementById('api-key-input').value = saved || '';
+  setKeyStatus(!!saved);
+  localStorage.setItem('nf_provider', p);
+}
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
+function saveKey() {
+  const p   = currentProvider();
+  const val = document.getElementById('api-key-input').value.trim();
+  if (val) { localStorage.setItem('nf_key_' + p, val); setKeyStatus(true); }
+  else     { localStorage.removeItem('nf_key_' + p);   setKeyStatus(false); }
+}
+
+function setKeyStatus(ok) {
+  const el  = document.getElementById('key-status');
+  const txt = document.getElementById('key-status-text');
+  el.className = 'key-status ' + (ok ? 'ok' : 'empty');
+  txt.textContent = ok ? 'Key saved' : 'No key saved';
+}
+
+function toggleKeyVisibility() {
+  const inp  = document.getElementById('api-key-input');
+  const icon = document.getElementById('key-eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+  } else {
+    inp.type = 'password';
+    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const savedProvider = localStorage.getItem('nf_provider') || 'anthropic';
+  document.getElementById('provider-select').value = savedProvider;
+  onProviderChange();
+});
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ── CHANNEL CHIPS ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const cb = chip.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+    chip.classList.toggle('on', cb.checked);
+  });
+});
+
+// ── URL FETCH ─────────────────────────────────────────────────────────────────
+async function fetchUrl() {
+  const url      = document.getElementById('source-url').value.trim();
+  const errEl    = document.getElementById('url-error');
+  const fetchBtn = document.getElementById('fetch-btn');
+  const fetched  = document.getElementById('fetched-text');
+
+  errEl.style.display = 'none';
+  if (!url) { showErr(errEl, 'Please enter a URL.'); return; }
+
+  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
+  if (!apiKey) { showErr(errEl, 'Please enter your API key above first.'); return; }
+
+  fetchBtn.disabled = true;
+  fetchBtn.textContent = 'Fetching…';
+  fetched.value = '';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: `Fetch the content of this URL and return ONLY the main body text — no HTML, no navigation, no ads, no headers/footers. Just the article or page content as plain text: ${url}` }]
+      })
+    });
+    const data = await resp.json();
+    const text = (data.content||[]).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+    fetched.value = text || 'Could not extract text from that page. Try pasting the content directly.';
+  } catch(e) {
+    showErr(errEl, 'Failed to fetch that page. Try pasting the content directly.');
+  } finally {
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = 'Fetch';
+  }
+}
+
+// ── CHANNEL CONFIG ────────────────────────────────────────────────────────────
+const CHANNELS = {
+  website: {
+    label: 'Website & UI', emoji: '🌐',
+    prompt: `Write UI copy for the Nearby Future website.
+FORMAT:
+- Headline: 6 words or fewer. Action-oriented or question-based.
+- Subhead: 1-2 sentences, plain and scannable.
+- CTA: Start with a verb. Specific outcome. E.g. "See your smoke risk" not "Learn more."
+- Body: 2–3 short paragraphs max.
+VOICE: Use second person. Active voice. Always pair any risk with a recommendation.
+DATA: Translate any numbers into lived experience. E.g. "14 extra bad-air days = nearly 3 more weeks when outdoor recess is cancelled."`
+  },
+  social: {
+    label: 'Social Media', emoji: '📱',
+    prompt: `Write social media content for Nearby Future. Produce THREE platform versions:
+1. INSTAGRAM: 2-3 short conversational paragraphs. End with a question or CTA. Include up to 5 relevant hashtags.
+2. X/TWITTER: 1-2 sentences under 280 characters. Hook first. One CTA.
+3. LINKEDIN: 3-4 sentences. Professional but accessible. Lead with a local data point.
+VOICE: Lead with local/specific, never global. One strong stat max, always translated into everyday terms. Pair every risk with an action.`
+  },
+  policy: {
+    label: 'Policy & Reports', emoji: '📋',
+    prompt: `Write a professional policy document for Nearby Future.
+FORMAT: Use these headers: Situation, Health Impact, Recommended Actions, Policy Levers.
+Length: 350-500 words.
+VOICE: Precise vocabulary without obscuring jargon. Quantify impact (e.g. "X additional poor air quality days per year"). Frame policy asks as community health investments.
+DATA: Cite all sources explicitly. Distinguish Nearby Future model projections from third-party data. Always follow a stat with its policy implication.
+End with a short "What You Can Do" section.`
+  },
+  press: {
+    label: 'Press & Media', emoji: '📰',
+    prompt: `Write press content for Nearby Future.
+FORMAT: Produce a PRESS RELEASE (inverted pyramid, lead with most newsworthy local finding, include a placeholder quote, data point, and one clear reader CTA) AND a MEDIA PITCH (3–5 sentences: story angle, context, why it matters locally).
+VOICE: Journalists need hooks. Open with the sharpest local stat. Avoid advocacy language. Include a human/community angle.
+DATA: Local numbers are the story. National averages are context only. Distinguish observed data from model projections.`
+  }
+};
+
+const AUDIENCE_NOTES = {
+  residents:  'Audience: Local residents and families. Tone: warm, practical, reassuring. Never condescending. Give clear risk levels and specific protective actions.',
+  community:  'Audience: Community groups and schools. Tone: collaborative and accessible. Emphasize shared benefit and community-level actions.',
+  officials:  'Audience: Elected officials and public health leaders. Tone: professional, evidence-based, outcome-focused. Tie data to policy levers they can pull.',
+  healthcare: 'Audience: Healthcare professionals. Tone: clinical accuracy with plain-language parallels. Include patient-facing talking points.',
+  media:      'Audience: Local and national media. Tone: story-driven, fact-anchored, locally specific. Provide compelling hooks and reliable data points.'
+};
+
+const MASTER_PROMPT = `You are a content writer for Nearby Future, a civic health platform helping individuals and communities understand the health effects of local wildfire smoke.
+
+Always write in the Nearby Future voice:
+1. START LOCAL — anchor to a specific place, season, or community context first. Never open with a global claim.
+2. AVOID ANXIETY — never use: crisis, devastating, catastrophic, alarming, inevitable, doom. Frame content around everyday costs, not fear.
+3. NEUTRAL LANGUAGE — avoid politically coded terms. Prefer: air quality conditions, smoke exposure, health risk, local environmental patterns.
+4. EVERYDAY COSTS — connect health risks to kitchen table concerns: healthcare costs, missed school/work days, time spent outdoors.
+5. ALWAYS INCLUDE AN ACTION — every piece must end with or include a specific, achievable step. Never leave the reader without agency.
+6. CITE EVIDENCE — use real data from Nearby Future models, peer-reviewed research, EPA, CDC, and NOAA. Lead with the finding, follow with the source. Translate numbers into lived experience.
+7. BE INCLUSIVE — content must feel relevant and respectful across political backgrounds, income levels, and health literacy.
+
+Tone: Clear, warm, evidence-based, practical. Not preachy. Not panicked.
+Reading level: 7th-8th grade unless writing for professional audiences.`;
+
+// ── TRANSLATE ─────────────────────────────────────────────────────────────────
+async function runTranslation() {
+  const btn   = document.getElementById('translate-btn');
+  const errEl = document.getElementById('translate-error');
+  errEl.style.display = 'none';
+
+  const apiKey = localStorage.getItem('nf_key_' + currentProvider());
+  if (!apiKey) {
+    showErr(errEl, 'Please enter your API key for the selected provider.');
+    document.getElementById('api-key-input').focus();
+    return;
+  }
+
+  let sourceText = activeTab === 'text'
+    ? document.getElementById('source-text').value.trim()
+    : (document.getElementById('fetched-text').value.trim() || document.getElementById('source-url').value.trim());
+
+  if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
+
+  const selected = [...document.querySelectorAll('.chip input:checked')].map(cb => cb.value);
+  if (!selected.length) { showErr(errEl, 'Please select at least one channel.'); return; }
+
+  const audience = document.getElementById('audience-select').value;
+  btn.disabled = true;
+
+  const panel = document.getElementById('results-panel');
+  panel.innerHTML = '';
+
+  for (const channel of selected) {
+    const cfg = CHANNELS[channel];
+    const loadEl = mkLoading(cfg.label);
+    panel.appendChild(loadEl);
+    try {
+      const result = await callClaude(sourceText, cfg, audience, apiKey);
+      panel.removeChild(loadEl);
+      panel.appendChild(mkResult(cfg, result));
+    } catch(e) {
+      panel.removeChild(loadEl);
+      panel.appendChild(mkError(cfg.label, e.message));
+    }
+  }
+
+  btn.disabled = false;
+  if (!panel.children.length) {
+    panel.innerHTML = '<div class="empty"><p>No results generated. Please try again.</p></div>';
+  }
+}
+
+async function callClaude(sourceText, cfg, audience, apiKey) {
+  const provider = currentProvider();
+  const pcfg = PROVIDERS[provider];
+  const prompt = `${MASTER_PROMPT}\n\n${AUDIENCE_NOTES[audience]}\n\n${cfg.prompt}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above in the Nearby Future voice for the channel and audience specified. Keep the core facts and intent, but transform the language, structure, and framing entirely. Do not use any catastrophizing language. Output only the translated content with no preamble or explanation.`;
+
+  if (provider === 'anthropic') {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Anthropic API error ' + resp.status); }
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+  }
+
+  if (provider === 'openai') {
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'OpenAI API error ' + resp.status); }
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content?.trim() || '';
+  }
+
+  if (provider === 'google') {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${pcfg.model}:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 1000 } })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'Gemini API error ' + resp.status); }
+    const data = await resp.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  }
+
+  if (provider === 'xai') {
+    const resp = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ model: pcfg.model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'xAI API error ' + resp.status); }
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content?.trim() || '';
+  }
+
+  throw new Error('Unknown provider: ' + provider);
+}
+
+// ── UI BUILDERS ───────────────────────────────────────────────────────────────
+function mkLoading(label) {
+  const el = document.createElement('div');
+  el.className = 'loading-card';
+  el.innerHTML = `<div class="spin"></div><div class="loading-txt">Translating for <span class="loading-ch">${label}</span>…</div>`;
+  return el;
+}
+
+function mkResult(cfg, text) {
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  const tags = [...text.matchAll(/#\w+/g)].map(m => m[0]).slice(0, 6);
+  const body = tags.length ? text.replace(/#\w+/g, '').trim() : text;
+  el.innerHTML = `
+    <div class="r-head">
+      <div class="r-label">${cfg.emoji}&nbsp; ${cfg.label}</div>
+      <button class="copy-btn" onclick="doCopy(this,\`${esc(text)}\`)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+    </div>
+    <div class="r-body">
+      <div class="r-text">${xhtml(body)}</div>
+      ${tags.length ? `<div class="r-tags">${tags.map(t=>`<span class="r-tag">${xhtml(t)}</span>`).join('')}</div>` : ''}
+    </div>`;
+  return el;
+}
+
+function mkError(label, msg) {
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  el.innerHTML = `
+    <div class="r-head"><div class="r-label">${label}</div></div>
+    <div class="r-body">
+      <div class="err" style="display:flex">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        ${xhtml(msg||'Translation failed. Please try again.')}
+      </div>
+    </div>`;
+  return el;
+}
+
+async function doCopy(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Copied`;
+    btn.classList.add('done');
+    setTimeout(() => {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy`;
+      btn.classList.remove('done');
+    }, 2000);
+  } catch(e) {}
+}
+
+function showErr(el, msg) {
+  el.style.display = 'flex';
+  el.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>${msg}`;
+}
+
+function xhtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s)   { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+</script>
+</body>
+</html>
