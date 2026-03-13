@@ -107,6 +107,65 @@
     border-radius: 2px;
   }
 
+  /* ─── API KEY BAR ──────────────────────────────────────── */
+  .key-bar {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--rule);
+    padding: 6px 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .key-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .key-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 340px;
+    min-width: 140px;
+  }
+  .key-input {
+    width: 100%;
+    padding: 4px 26px 4px 8px;
+    font-family: 'Inter Tight', monospace;
+    font-size: 0.72rem;
+    background: var(--white);
+    border: 1px solid var(--rule-dark);
+    border-radius: var(--r);
+    color: var(--ink-mid);
+    outline: none;
+    transition: border-color 0.14s;
+  }
+  .key-input:focus { border-color: var(--teal); }
+  .key-input::placeholder { color: var(--muted-light); }
+  .key-eye {
+    position: absolute;
+    right: 6px;
+    background: none;
+    border: none;
+    color: var(--muted-light);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    transition: color 0.14s;
+  }
+  .key-eye:hover { color: var(--ink); }
+  .key-eye svg { width: 13px; height: 13px; }
+  .key-link {
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+  .key-link a { color: var(--teal); text-decoration: none; }
+  .key-link a:hover { text-decoration: underline; }
+
   /* ─── HERO — white, image below headline (slide 1 style) ── */
   .hero {
     background: var(--white);
@@ -152,6 +211,15 @@
 
 
   /* ─── PILLARS — teal rule lines, like slide 2 ──────────── */
+  .pillars-label {
+    padding: 1.5rem 2.5rem 0.5rem;
+    background: var(--white);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
   .pillars {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -868,7 +936,73 @@
     font-weight: 600;
   }
 
-  /* ─── LOADING ──────────────────────────────────────────── */
+  /* ─── PROMPTS REFERENCE ────────────────────────────────── */
+  .prompts-section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 2.5rem 6rem;
+  }
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 780px) { .prompt-grid { grid-template-columns: 1fr; } }
+  .prompt-block {
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--teal);
+    border-radius: var(--r2);
+    overflow: hidden;
+    background: var(--white);
+  }
+  .prompt-block.full-width { grid-column: 1 / -1; }
+  .prompt-block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1.1rem;
+    background: var(--off-white);
+    border-bottom: 1px solid var(--rule);
+  }
+  .prompt-block-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .prompt-copy-btn {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    padding: 3px 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: border-color 0.14s, color 0.14s;
+  }
+  .prompt-copy-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .prompt-copy-btn.done  { color: var(--sage); border-color: var(--sage); }
+  .prompt-copy-btn svg { width: 10px; height: 10px; }
+  .prompt-text {
+    margin: 0;
+    padding: 1.1rem 1.2rem;
+    font-family: 'Inter Tight', monospace;
+    font-size: 0.78rem;
+    line-height: 1.75;
+    color: var(--ink-mid);
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--white);
+  }
+
+
   .loading-card {
     background: var(--off-white);
     border: 1px solid var(--rule);
@@ -901,20 +1035,37 @@
   <span class="badge">Beta</span>
 </header>
 
+<!-- ─── API KEY BAR ─────────────────────────────────────── -->
+<div class="key-bar">
+  <span class="key-label">Anthropic API Key</span>
+  <div class="key-wrap">
+    <input class="key-input" id="api-key-input" type="password"
+      placeholder="sk-ant-api03-…"
+      autocomplete="off" spellcheck="false">
+    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
+      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+    </button>
+  </div>
+  <span class="key-link">
+    <a href="https://console.anthropic.com/keys" target="_blank">Get API key</a>
+  </span>
+</div>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
 <div class="hero">
   <div class="hero-top">
     <div>
-      <p class="hero-eyebrow">AI-powered voice translation tool</p>
       <h1 class="hero-title">Translate content into<br>the <em>Nearby Future</em> voice</h1>
+      <p class="hero-sub">Paste text or link to a page. Select your channels. Get content that's grounded, local, and gives people something to do.</p>
     </div>
-    <p class="hero-sub">Paste text or link to a page. Select your channels. Get content that's grounded, local, and gives people something to do.</p>
   </div>
 
 </div>
 
 <!-- ─── PILLARS ──────────────────────────────────────────── -->
+<p class="pillars-label">Tone principles</p>
 <div class="pillars">
   <div class="pillar">
     <span class="pillar-n">01</span>
@@ -1169,6 +1320,137 @@
   </div>
 </div>
 
+<!-- ─── PROMPTS REFERENCE ─────────────────────────────────── -->
+<div class="prompts-section">
+  <hr class="practice-divider">
+  <h2 class="practice-heading">Prompt reference</h2>
+  <p class="practice-sub">The full prompts used by this tool — copy and paste into any AI writing tool to apply the Nearby Future voice directly.</p>
+
+  <div class="prompt-grid">
+
+    <div class="prompt-block full-width">
+      <div class="prompt-block-head">
+        <span class="prompt-block-label">Master prompt</span>
+        <button class="prompt-copy-btn" onclick="copyPrompt(this, 'master-prompt-text')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="prompt-text" id="master-prompt-text">You are a content writer for Nearby Future, a civic health platform helping individuals and communities understand the health effects of local wildfire smoke.
+
+Always write in the Nearby Future voice:
+1. START LOCAL — anchor to a specific place, season, or community context first. Never open with a global claim.
+2. AVOID ANXIETY — never use: crisis, devastating, catastrophic, alarming, inevitable, doom. Frame content around everyday costs, not fear.
+3. NEUTRAL LANGUAGE — avoid politically coded terms. Prefer: air quality conditions, smoke exposure, health risk, local environmental patterns.
+4. EVERYDAY COSTS — connect health risks to kitchen table concerns: healthcare costs, missed school/work days, time spent outdoors.
+5. ALWAYS INCLUDE AN ACTION — every piece must end with or include a specific, achievable step. Never leave the reader without agency.
+6. CITE EVIDENCE — use real data from Nearby Future models, peer-reviewed research, EPA, CDC, and NOAA. Lead with the finding, follow with the source. Translate numbers into lived experience.
+7. BE INCLUSIVE — content must feel relevant and respectful across political backgrounds, income levels, and health literacy.
+
+Tone: Clear, warm, evidence-based, practical. Not preachy. Not panicked.
+Reading level: 7th–8th grade unless writing for professional audiences.</pre>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-block-head">
+        <span class="prompt-block-label">🌐 Website &amp; UI</span>
+        <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-website')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="prompt-text" id="prompt-website">Write UI copy for the Nearby Future website. Produce clearly labeled sections for each of the following formats: [Homepage hero, Feature description, Tooltip, CTA copy, Onboarding copy].
+
+FORMAT RULES PER TYPE:
+- Homepage hero: headline (≤6 words, serif display), subhead (1–2 sentences), one CTA verb phrase
+- Feature description: title + 2–3 sentence body, plain and scannable
+- Tooltip: one sentence, no jargon
+- CTA copy: verb-first, specific outcome (e.g. "See your smoke risk" not "Learn more")
+- Onboarding copy: warm, second-person, action-oriented
+
+Label each section clearly (e.g. "## Homepage hero"). VOICE: Active voice, second person, always pair risk with a recommendation.</pre>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-block-head">
+        <span class="prompt-block-label">📱 Social Media</span>
+        <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-social')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="prompt-text" id="prompt-social">Write social media content for Nearby Future. Produce clearly labeled sections for each of the following platforms: [Instagram, X/Twitter, Facebook, LinkedIn].
+
+FORMAT RULES PER PLATFORM:
+- Instagram: 2–3 short conversational paragraphs. End with a question or CTA. Up to 5 hashtags at end.
+- X/Twitter: 1–2 sentences under 280 characters. Hook first. One CTA.
+- Facebook: slightly longer than Instagram, community-focused framing, encourage replies.
+- LinkedIn: 3–4 sentences, professional but accessible, lead with a local data point.
+
+Label each section clearly (e.g. "## Instagram"). VOICE: Lead local/specific, never global. Pair every risk with an action.</pre>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-block-head">
+        <span class="prompt-block-label">📋 Policy &amp; Reports</span>
+        <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-policy')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="prompt-text" id="prompt-policy">Write policy/professional content for Nearby Future. Produce clearly labeled sections for each of the following formats: [One-pager, Full brief, Healthcare provider guide, Elected official summary].
+
+FORMAT RULES PER TYPE:
+- One-pager: 300–500 words, headers: Situation / Health Impact / Recommended Actions / Policy Levers
+- Full brief: 600–1000 words, same headers with deeper evidence and citations
+- Healthcare provider guide: clinical accuracy + patient-facing talking points, 300–500 words
+- Elected official summary: outcome-focused, quantified impact, policy ask framed as community health investment, 250–400 words
+
+Label each section clearly (e.g. "## One-pager"). VOICE: Precise vocabulary, quantify impact, end each with a "What You Can Do" section.</pre>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-block-head">
+        <span class="prompt-block-label">📰 Press &amp; Media</span>
+        <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-press')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="prompt-text" id="prompt-press">Write press/media content for Nearby Future. Produce clearly labeled sections for each of the following formats: [Press release, Media pitch, Fact sheet].
+
+FORMAT RULES PER TYPE:
+- Press release: inverted pyramid, lead with sharpest local finding, placeholder quote, data point, one reader CTA
+- Media pitch: 3–5 sentences — story angle, context, why it matters locally
+- Fact sheet: bullet format — lead stat, 3–5 supporting facts, 1 action item, source-ready
+
+Label each section clearly (e.g. "## Press release"). VOICE: Journalists need hooks. Open with specific local stat. Avoid advocacy. Include human/community angle.</pre>
+    </div>
+
+    <div class="prompt-block full-width">
+      <div class="prompt-block-head">
+        <span class="prompt-block-label">Writing coach (feedback prompt)</span>
+        <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-feedback')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="prompt-text" id="prompt-feedback">You are a writing coach for Nearby Future, a civic health platform. Your job is to give brief, constructive feedback on whether a piece of writing matches the Nearby Future brand voice.
+
+THE NEARBY FUTURE VOICE RULES:
+1. START LOCAL — anchor to a specific place, season, or community. Never open with a global claim.
+2. AVOID ANXIETY — no crisis, devastating, catastrophic, alarming, inevitable, doom. Frame through everyday costs (healthcare bills, missed school days, time outdoors), not fear.
+3. NEUTRAL LANGUAGE — avoid politically coded terms. Use: air quality conditions, smoke exposure, health risk, local environmental patterns.
+4. EVERYDAY COSTS — connect health risks to kitchen table concerns.
+5. ALWAYS INCLUDE AN ACTION — every piece must include a specific, achievable step.
+6. BE INCLUSIVE — relevant and respectful across political backgrounds, income levels, health literacy.
+
+Evaluate the writing and give feedback as a teacher — point to specific rules, mention what works, guide improvement without rewriting.</pre>
+    </div>
+
+  </div>
+</div>
+
 <script>
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let activeTab = 'text';
@@ -1247,8 +1529,20 @@ function setRegenEnabled(enabled) {
 }
 
 // ── API CONFIG ────────────────────────────────────────────────────────────────
-const API_KEY   = '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';
 const API_MODEL = 'claude-sonnet-4-20250514';
+function getApiKey() { return document.getElementById('api-key-input')?.value.trim() || ''; }
+
+function toggleKeyVisibility() {
+  const inp  = document.getElementById('api-key-input');
+  const icon = document.getElementById('key-eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27z"/>';
+  } else {
+    inp.type = 'password';
+    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+  }
+}
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -1323,7 +1617,7 @@ async function fetchUrl() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
+        'x-api-key': getApiKey(),
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -1455,6 +1749,8 @@ async function runTranslation(isRegen = false) {
 
   if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
 
+  if (!getApiKey()) { showErr(errEl, 'Please enter your Anthropic API key above.'); return; }
+
   const audience    = document.getElementById('audience-select').value;
   const lengthInstr = getLengthInstruction();
 
@@ -1507,7 +1803,7 @@ async function callClaude(sourceText, channelPrompt, audience) {
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
     body: JSON.stringify({ model: API_MODEL, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
   });
   if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e?.error?.message || 'API error ' + resp.status); }
@@ -1549,6 +1845,11 @@ async function getFeedback() {
     return;
   }
 
+  if (!getApiKey()) {
+    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please enter your Anthropic API key at the top of the page.</p></div>`;
+    return;
+  }
+
   btn.disabled = true;
   pane.innerHTML = `<div class="feedback-empty"><div class="spin" style="margin:0 auto 0.75rem"></div><p>Reading your writing…</p></div>`;
 
@@ -1556,7 +1857,7 @@ async function getFeedback() {
     const messages = [{ role: 'user', content: `${FEEDBACK_PROMPT}\n\nPIECE TO EVALUATE:\n---\n${text.slice(0, 2000)}\n---` }];
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model: API_MODEL, max_tokens: 400, messages })
     });
     const data = await resp.json();
@@ -1630,10 +1931,11 @@ function mkError(label, msg) {
   return el;
 }
 
-async function doCopy(btn, text) {
+async function copyPrompt(btn, id) {
+  const text = document.getElementById(id)?.textContent || '';
   try {
     await navigator.clipboard.writeText(text);
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Copied`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied`;
     btn.classList.add('done');
     setTimeout(() => {
       btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy`;
@@ -1641,6 +1943,7 @@ async function doCopy(btn, text) {
     }, 2000);
   } catch(e) {}
 }
+
 
 function showErr(el, msg) {
   el.style.display = 'flex';
