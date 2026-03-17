@@ -1523,9 +1523,25 @@ document.querySelectorAll('.chip').forEach(chip => {
 // sub-option pill toggles
 document.querySelectorAll('.sub-opt').forEach(opt => {
   opt.addEventListener('click', () => {
-    const cb   = opt.querySelector('input[type=checkbox]');
-    cb.checked = !cb.checked;
+    const cb      = opt.querySelector('input[type=checkbox]');
+    cb.checked    = !cb.checked;
     opt.classList.toggle('on', cb.checked);
+
+    // find the parent channel and check if any sub-options remain selected
+    const container = opt.closest('[id^="subopts-"]');
+    if (!container) return;
+    const channel   = container.id.replace('subopts-', '');
+    const chip      = document.getElementById('chip-' + channel);
+    const chipCb    = chip?.querySelector('input[type=checkbox]');
+    const anyChecked = [...container.querySelectorAll('input:checked')].length > 0;
+
+    if (!anyChecked && chip && chipCb) {
+      // all subchannels deselected — deselect the top-level chip too
+      chipCb.checked = false;
+      chip.classList.remove('on', 'has-expander', 'panel-open');
+      document.getElementById('sub-' + channel)?.classList.remove('open');
+      document.getElementById('expand-' + channel)?.classList.remove('open');
+    }
   });
 });
 
@@ -1540,13 +1556,13 @@ function toggleExpand(channel) {
 }
 
 function getSubSelections(channel) {
-  // returns array of selected sub-option labels, or empty array (= all)
   const container = document.getElementById('subopts-' + channel);
   if (!container) return [];
   const checked = [...container.querySelectorAll('input:checked')].map(cb => cb.value);
   const all     = [...container.querySelectorAll('input')].map(cb => cb.value);
-  // if all checked or none checked, treat as "all"
-  if (checked.length === 0 || checked.length === all.length) return all;
+  // if all checked (or no sub-options exist), treat as all
+  if (!all.length || checked.length === all.length) return all;
+  // return only the explicitly selected ones
   return checked;
 }
 
