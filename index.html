@@ -1043,6 +1043,7 @@
     </div>
     <div class="card-body">
 
+      <div id="translate-error" class="err" style="margin-bottom:0.75rem"></div>
       <div class="tabs">
         <button class="tab active" onclick="switchTab('text',this)">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h12v2H3z"/></svg>
@@ -1206,7 +1207,6 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
         Regenerate All
       </button>
-      <div id="translate-error" class="err"></div>
 
     </div>
   </div>
@@ -1704,14 +1704,18 @@ async function validateSourceContent(text) {
   // Returns null if content is valid, or a rejection message string if not.
   const prompt = `You are a content validator for Nearby Future, a civic health platform focused on wildfire smoke and local air quality.
 
-Review the following source content and determine whether it is:
-1. RELEVANT — it relates to wildfires, wildfire smoke, air quality, or related health/environmental topics.
-2. COMPLETE — it contains enough meaningful substance to translate (not just a URL, a single sentence, placeholder text, or gibberish).
+Your job is to check ONLY whether the source content is usable for translation. Be permissive — the translator will handle tone, voice, and framing. Do NOT reject content because it uses the wrong tone, alarming language, or doesn't match the Nearby Future voice. That is the translator's job.
+
+Reject content ONLY if it fails one of these two tests:
+1. NOT RELEVANT — the content has no connection to wildfires, wildfire smoke, air quality, environmental health, or related public health topics.
+2. NOT COMPLETE — the content is too thin to translate: a bare URL, a single word or fragment, placeholder text, gibberish, or fewer than two meaningful sentences.
+
+If the content is about air quality, smoke, fire, health impacts of environmental conditions, or anything plausibly related to Nearby Future's mission — even if it uses alarmist or politically charged language — mark it valid.
 
 Respond ONLY with valid JSON, no markdown, no backticks:
 {
   "valid": true | false,
-  "reason": "One sentence explanation if invalid. Empty string if valid."
+  "reason": "One plain-language sentence explaining what's missing, addressed to the user. Empty string if valid."
 }
 
 SOURCE CONTENT:
