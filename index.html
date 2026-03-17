@@ -107,64 +107,8 @@
     border-radius: 2px;
   }
 
-  /* ─── API KEY BAR ──────────────────────────────────────── */
-  .key-bar {
-    background: var(--off-white);
-    border-bottom: 1px solid var(--rule);
-    padding: 6px 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .key-label {
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-  .key-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex: 1;
-    max-width: 340px;
-    min-width: 140px;
-  }
-  .key-input {
-    width: 100%;
-    padding: 4px 26px 4px 8px;
-    font-family: 'Inter Tight', monospace;
-    font-size: 0.72rem;
-    background: var(--white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    color: var(--ink-mid);
-    outline: none;
-    transition: border-color 0.14s;
-  }
-  .key-input:focus { border-color: var(--teal); }
-  .key-input::placeholder { color: var(--muted-light); }
-  .key-eye {
-    position: absolute;
-    right: 6px;
-    background: none;
-    border: none;
-    color: var(--muted-light);
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    transition: color 0.14s;
-  }
-  .key-eye:hover { color: var(--ink); }
-  .key-eye svg { width: 13px; height: 13px; }
-  .key-link {
-    font-size: 0.65rem;
-    color: var(--muted);
-  }
-  .key-link a { color: var(--teal); text-decoration: none; }
-  .key-link a:hover { text-decoration: underline; }
+
+
 
   /* ─── HERO — white, image below headline (slide 1 style) ── */
   .hero {
@@ -1038,21 +982,8 @@
   <span class="badge">Beta</span>
 </header>
 
-<!-- ─── API KEY BAR ─────────────────────────────────────── -->
-<div class="key-bar">
-  <span class="key-label">Anthropic API Key</span>
-  <div class="key-wrap">
-    <input class="key-input" id="api-key-input" type="password"
-      placeholder="sk-ant-api03-…"
-      autocomplete="new-password" spellcheck="false" data-lpignore="true" data-1p-ignore>
-    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
-      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-      </svg>
-    </button>
-  </div>
-  </div>
-</div>
+
+
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
 <div class="hero">
@@ -1531,19 +1462,9 @@ function setRegenEnabled(enabled) {
 
 // ── API CONFIG ────────────────────────────────────────────────────────────────
 const API_MODEL = 'claude-sonnet-4-20250514';
-function getApiKey() { return document.getElementById('api-key-input')?.value.trim() || ''; }
-
-function toggleKeyVisibility() {
-  const inp  = document.getElementById('api-key-input');
-  const icon = document.getElementById('key-eye-icon');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27z"/>';
-  } else {
-    inp.type = 'password';
-    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
-  }
-}
+// __CLAUDE_API_KEY__ is replaced with the real value at build time by GitHub Actions.
+// It is never stored in version control.
+function getApiKey() { return '__CLAUDE_API_KEY__'; }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -1750,8 +1671,6 @@ async function runTranslation(isRegen = false) {
 
   if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
 
-  if (!getApiKey()) { showErr(errEl, 'Please enter your Anthropic API key above.'); return; }
-
   const audience    = document.getElementById('audience-select').value;
   const lengthInstr = getLengthInstruction();
 
@@ -1843,11 +1762,6 @@ async function getFeedback() {
 
   if (!text) {
     pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please write something first.</p></div>`;
-    return;
-  }
-
-  if (!getApiKey()) {
-    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please enter your Anthropic API key at the top of the page.</p></div>`;
     return;
   }
 
