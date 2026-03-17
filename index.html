@@ -1684,6 +1684,42 @@ Tone: Clear, warm, evidence-based, practical. Not preachy. Not panicked.
 Reading level: 7th-8th grade unless writing for professional audiences.`;
 
 // ── TRANSLATE ─────────────────────────────────────────────────────────────────
+async function validateSourceContent(text) {
+  // Returns null if content is valid, or a rejection message string if not.
+  const prompt = `You are a content validator for Nearby Future, a civic health platform focused on wildfire smoke and local air quality.
+
+Review the following source content and determine whether it is:
+1. RELEVANT — it relates to wildfires, wildfire smoke, air quality, or related health/environmental topics.
+2. COMPLETE — it contains enough meaningful substance to translate (not just a URL, a single sentence, placeholder text, or gibberish).
+
+Respond ONLY with valid JSON, no markdown, no backticks:
+{
+  "valid": true | false,
+  "reason": "One sentence explanation if invalid. Empty string if valid."
+}
+
+SOURCE CONTENT:
+---
+${text.slice(0, 2000)}
+---`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: API_MODEL, max_tokens: 150, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!resp.ok) return null; // don't block on validation errors
+  const data = await resp.json();
+  const raw  = data.content?.filter(b => b.type === 'text').map(b => b.text).join('').trim() || '';
+  try {
+    const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    if (!result.valid) return result.reason || 'Source content doesn\'t appear to be relevant to wildfires or air quality. Please replace it with content on that topic before translating.';
+    return null;
+  } catch {
+    return null; // if parsing fails, allow translation to proceed
+  }
+}
+
 async function runTranslation(isRegen = false) {
   const btn    = document.getElementById('translate-btn');
   const regen  = document.getElementById('regen-btn');
@@ -1708,6 +1744,23 @@ async function runTranslation(isRegen = false) {
     .map(cb => cb.value);
 
   if (!selected.length) { showErr(errEl, 'Please select at least one channel.'); return; }
+
+  // Preflight: validate source content before running translation
+  if (!isRegen) {
+    btn.disabled   = true;
+    regen.disabled = true;
+    const panel = document.getElementById('results-panel');
+    panel.innerHTML = '<div class="loading-card"><div class="spin"></div><div class="loading-txt">Checking source content…</div></div>';
+
+    const validationError = await validateSourceContent(sourceText);
+    if (validationError) {
+      panel.innerHTML = '';
+      btn.disabled   = false;
+      regen.disabled = false;
+      showErr(errEl, validationError);
+      return;
+    }
+  }
 
   // store for regen
   lastSourceText = sourceText;
