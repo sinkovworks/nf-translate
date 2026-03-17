@@ -7,63 +7,77 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  /* Feijoa via system fallback — closest available Google Font approximation */
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,500&display=swap');
 
+  /* ── shadcn/ui design tokens ─────────────────────────────── */
   :root {
-    /* Brand palette from color sheet */
-    --white:       #FFFFFF;
-    --off-white:   #F7F5F2;
-    --ink:         #0A0A0A;
-    --ink-mid:     #2A2A2A;
-    --muted:       #888888;
-    --muted-light: #BBBBBB;
-    --rule:        #E0DDD8;
-    --rule-dark:   #C8C4BE;
+    /* shadcn zinc palette (light mode) */
+    --background:    #ffffff;
+    --foreground:    #09090b;
+    --card:          #ffffff;
+    --card-fg:       #09090b;
+    --popover:       #ffffff;
+    --popover-fg:    #09090b;
+    --primary:       #18181b;
+    --primary-fg:    #fafafa;
+    --secondary:     #f4f4f5;
+    --secondary-fg:  #18181b;
+    --muted:         #f4f4f5;
+    --muted-fg:      #71717a;
+    --accent:        #f4f4f5;
+    --accent-fg:     #18181b;
+    --destructive:   #ef4444;
+    --destructive-fg:#fafafa;
+    --border:        #e4e4e7;
+    --input:         #e4e4e7;
+    --ring:          #18181b;
 
-    /* Brand accent colors — from palette */
-    --teal:        #4A8FA0;
-    --teal-light:  #7BB5C4;
-    --teal-bg:     #EBF4F7;
-    --sage:        #7BA882;
-    --sage-light:  #A8C8AC;
-    --sage-bg:     #EFF6F0;
-    --sand:        #C4A882;
-    --amber:       #D4962A;
-    --rose:        #D47080;
+    /* Brand teal — kept for NF identity, used sparingly */
+    --teal:          #4A8FA0;
+    --teal-light:    #7BB5C4;
+    --teal-bg:       #f0f7f9;
+    --sage:          #7BA882;
+    --sage-bg:       #EFF6F0;
+    --sage-border:   #A8C8AC;
 
-    /* UI */
-    --accent:      var(--teal);
-    --accent-bg:   var(--teal-bg);
-    --r:           3px;
-    --r2:          6px;
+    /* shadcn radius scale */
+    --radius:        0.5rem;   /* rounded-lg  */
+    --radius-md:     0.375rem; /* rounded-md  */
+    --radius-sm:     0.25rem;  /* rounded-sm  */
+    --radius-full:   9999px;
+
+    /* shadcn shadows */
+    --shadow-sm:     0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow:        0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md:     0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Inter Tight', 'Inter', sans-serif;
-    background: var(--white);
-    color: var(--ink);
+    font-family: 'Inter Tight', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
-  /* Feijoa — use Playfair Display as the closest available web serif */
   .feijoa {
-    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-family: 'Playfair Display', Georgia, serif;
     font-weight: 500;
   }
 
-  /* ─── HEADER ───────────────────────────────────────────── */
+  /* ── HEADER ──────────────────────────────────────────────── */
   header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--white);
-    border-bottom: 1px solid var(--rule);
-    height: 36px;
-    padding: 0 2.5rem;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    height: 48px;
+    padding: 0 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -83,38 +97,100 @@
     line-height: 1;
   }
   .logo-wordmark strong {
-    font-family: 'Inter Tight', sans-serif;
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--ink);
-    letter-spacing: 0.01em;
+    color: var(--foreground);
+    letter-spacing: -0.01em;
   }
   .logo-wordmark span {
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     font-weight: 400;
-    color: var(--muted);
-    letter-spacing: 0.12em;
+    color: var(--muted-fg);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+
+  /* shadcn Badge */
   .badge {
-    font-size: 0.58rem;
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background: transparent;
+    padding: 2px 10px;
+    font-size: 0.65rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border: 1px solid var(--rule-dark);
-    padding: 3px 8px;
-    border-radius: 2px;
+    color: var(--muted-fg);
+    letter-spacing: 0.03em;
+    line-height: 1.6;
   }
 
+  /* ── API KEY BAR ─────────────────────────────────────────── */
+  .key-bar {
+    background: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .key-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-fg);
+    flex-shrink: 0;
+  }
+  .key-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 340px;
+    min-width: 140px;
+  }
+  /* shadcn Input */
+  .key-input {
+    width: 100%;
+    padding: 5px 28px 5px 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    background: var(--background);
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    color: var(--foreground);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow-sm);
+  }
+  .key-input:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgb(24 24 27 / 0.12);
+  }
+  .key-input::placeholder { color: var(--muted-fg); }
+  .key-eye {
+    position: absolute;
+    right: 7px;
+    background: none;
+    border: none;
+    color: var(--muted-fg);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    transition: color 0.15s;
+  }
+  .key-eye:hover { color: var(--foreground); }
+  .key-eye svg { width: 13px; height: 13px; }
+  .key-link { font-size: 0.7rem; color: var(--muted-fg); }
+  .key-link a { color: var(--teal); text-decoration: none; }
+  .key-link a:hover { text-decoration: underline; }
 
-
-
-  /* ─── HERO — white, image below headline (slide 1 style) ── */
+  /* ── HERO ─────────────────────────────────────────────────── */
   .hero {
-    background: var(--white);
-    padding: 3rem 2.5rem 0;
-    border-bottom: 1px solid var(--rule);
+    background: var(--background);
+    padding: 3rem 1.5rem 0;
+    border-bottom: 1px solid var(--border);
   }
   .hero-top {
     display: flex;
@@ -124,45 +200,41 @@
     margin-bottom: 1.75rem;
   }
   .hero-eyebrow {
-    font-size: 0.72rem;
-    font-weight: 400;
-    color: var(--muted);
+    font-size: 0.75rem;
+    color: var(--muted-fg);
     margin-bottom: 0.75rem;
     letter-spacing: 0.01em;
   }
   .hero-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-size: clamp(2.2rem, 5vw, 3.75rem);
     font-weight: 500;
-    color: var(--ink);
+    color: var(--foreground);
     line-height: 1.05;
     letter-spacing: -0.02em;
     max-width: 780px;
   }
   .hero-title em { font-style: italic; }
   .hero-sub {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--muted);
+    font-size: 0.875rem;
+    color: var(--muted-fg);
     line-height: 1.7;
-    max-width: 320px;
+    max-width: 300px;
     padding-top: 0.5rem;
     flex-shrink: 0;
     align-self: flex-end;
   }
   @media (max-width: 680px) { .hero-sub { display: none; } }
 
-
-
-  /* ─── PILLARS — teal rule lines, like slide 2 ──────────── */
+  /* ── PILLARS ─────────────────────────────────────────────── */
   .pillars-label {
-    padding: 0 2.5rem;
-    background: var(--white);
-    font-size: 0.72rem;
+    padding: 0 1.5rem;
+    background: var(--background);
+    font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--muted-fg);
     display: flex;
     align-items: center;
     min-height: 2.5rem;
@@ -170,22 +242,22 @@
   .pillars {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    border-bottom: 2px solid var(--teal);
+    border-bottom: 1px solid var(--border);
   }
   @media (max-width: 640px) { .pillars { grid-template-columns: 1fr; } }
   .pillar {
-    padding: 1rem 2.5rem;
+    padding: 1rem 1.5rem;
     border-top: 2px solid var(--teal);
-    border-right: 1px solid var(--rule);
+    border-right: 1px solid var(--border);
     display: flex;
     gap: 10px;
     align-items: flex-start;
-    background: var(--white);
+    background: var(--background);
   }
   .pillar:last-child { border-right: none; }
   .pillar-n {
     font-size: 0.6rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--teal);
     letter-spacing: 0.08em;
     margin-top: 3px;
@@ -195,193 +267,199 @@
     display: block;
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--ink);
+    color: var(--foreground);
     margin-bottom: 2px;
   }
   .pillar-body span {
-    font-size: 0.72rem;
-    color: var(--muted);
-    line-height: 1.45;
-    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--muted-fg);
+    line-height: 1.5;
   }
 
-  /* ─── APP GRID ─────────────────────────────────────────── */
+  /* ── APP GRID ────────────────────────────────────────────── */
   .app {
-    max-width: 1240px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 2.5rem 2.5rem 6rem;
+    padding: 2rem 1.5rem 6rem;
     display: grid;
     grid-template-columns: 420px 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     align-items: start;
   }
   @media (max-width: 880px) { .app { grid-template-columns: 1fr; } }
 
-  /* ─── INPUT PANEL ──────────────────────────────────────── */
+  /* ── shadcn Card ─────────────────────────────────────────── */
   .input-card {
-    background: var(--white);
-    border: 1px solid var(--rule);
-    border-radius: var(--r2);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
   }
   .card-head {
-    padding: 1rem 1.4rem;
-    border-bottom: 2px solid var(--teal);
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: baseline;
     gap: 10px;
-    background: var(--off-white);
+    background: var(--muted);
   }
   .card-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 500;
-    color: var(--ink);
+    color: var(--card-fg);
   }
   .card-step {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 500;
-    color: var(--muted);
-    letter-spacing: 0.1em;
+    color: var(--muted-fg);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .card-body { padding: 1.4rem; }
+  .card-body { padding: 1.25rem; }
 
-  /* ─── TABS ─────────────────────────────────────────────── */
+  /* ── shadcn Tabs ─────────────────────────────────────────── */
   .tabs {
     display: flex;
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    overflow: hidden;
+    background: var(--muted);
+    border-radius: var(--radius-md);
+    padding: 3px;
+    gap: 2px;
     margin-bottom: 1rem;
   }
   .tab {
     flex: 1;
-    padding: 0.5rem 1rem;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.78rem;
+    padding: 0.4rem 0.875rem;
+    font-family: inherit;
+    font-size: 0.8rem;
     font-weight: 500;
-    color: var(--muted);
-    background: var(--off-white);
+    color: var(--muted-fg);
+    background: transparent;
     border: none;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    transition: background 0.14s, color 0.14s;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
   }
-  .tab + .tab { border-left: 1px solid var(--rule-dark); }
   .tab svg { width: 12px; height: 12px; }
-  .tab.active { background: var(--ink); color: var(--white); }
-  .tab:not(.active):hover { background: var(--rule); color: var(--ink); }
+  .tab.active {
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--shadow-sm);
+  }
+  .tab:not(.active):hover { color: var(--foreground); }
 
   .tab-pane { display: none; }
   .tab-pane.active { display: block; }
 
-  /* ─── FORM CONTROLS ────────────────────────────────────── */
+  /* ── shadcn Input / Textarea ─────────────────────────────── */
   textarea, .url-input {
     width: 100%;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.85rem;
-    color: var(--ink);
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
     outline: none;
     line-height: 1.65;
-    transition: border-color 0.14s, background 0.14s;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow-sm);
   }
-  textarea:focus, .url-input:focus { border-color: var(--teal); background: var(--white); }
-  textarea::placeholder, .url-input::placeholder { color: var(--muted-light); }
-  textarea { min-height: 155px; padding: 0.8rem 0.9rem; resize: vertical; }
-  .url-input { padding: 0.58rem 0.9rem; }
+  textarea:focus, .url-input:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgb(24 24 27 / 0.1);
+  }
+  textarea::placeholder, .url-input::placeholder { color: var(--muted-fg); }
+  textarea { min-height: 155px; padding: 0.75rem 0.875rem; resize: vertical; }
+  .url-input { padding: 0.55rem 0.875rem; }
 
-  .url-row { display: flex; gap: 7px; }
+  .url-row { display: flex; gap: 6px; }
+
+  /* shadcn Button variants */
   .fetch-btn {
     flex-shrink: 0;
-    padding: 0.58rem 1rem;
-    background: var(--ink);
-    color: var(--white);
+    padding: 0.55rem 1rem;
+    background: var(--primary);
+    color: var(--primary-fg);
     border: none;
-    border-radius: var(--r);
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.14s;
+    transition: opacity 0.15s;
+    box-shadow: var(--shadow-sm);
   }
-  .fetch-btn:hover { background: var(--teal); }
-  .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .fetch-btn:hover { opacity: 0.9; }
+  .fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .note {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 0.7rem;
-    color: var(--muted);
+    font-size: 0.72rem;
+    color: var(--muted-fg);
     margin-top: 6px;
   }
   .note svg { width: 11px; height: 11px; flex-shrink: 0; }
 
-  /* ─── SECTION LABEL ────────────────────────────────────── */
+  /* ── Section label ───────────────────────────────────────── */
   .sec-label {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 500;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
-    margin: 1.25rem 0 0.6rem;
+    color: var(--muted-fg);
+    margin: 1.25rem 0 0.5rem;
     display: block;
   }
 
-  /* ─── CHANNEL CHIPS ────────────────────────────────────── */
+  /* ── Channel chips ───────────────────────────────────────── */
   .chips {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 5px;
   }
   .chip {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 0.55rem 0.875rem;
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
+    gap: 7px;
+    padding: 0.5rem 0.75rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
     cursor: pointer;
     user-select: none;
-    transition: border-color 0.14s, background 0.14s;
+    transition: border-color 0.15s, background 0.15s;
+    flex: 1;
+    box-shadow: var(--shadow-sm);
   }
-  .chip:hover { border-color: var(--teal-light); background: var(--teal-bg); }
+  .chip:hover {
+    border-color: var(--teal-light);
+    background: var(--teal-bg);
+  }
   .chip.on {
-    background: var(--ink);
-    border-color: var(--ink);
+    background: var(--primary);
+    border-color: var(--primary);
   }
   .chip input { display: none; }
-  .chip-ico { font-size: 0.82rem; line-height: 1; }
+  .chip-ico { font-size: 0.85rem; line-height: 1; }
   .chip-lbl {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 500;
-    color: var(--muted);
-    transition: color 0.14s;
+    color: var(--muted-fg);
+    transition: color 0.15s;
   }
-  .chip.on .chip-lbl { color: var(--white); }
+  .chip.on .chip-lbl { color: var(--primary-fg); }
 
-  /* ─── SUB-CHANNEL EXPANDER ────────────────────────────── */
-  .channel-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .chip-row {
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-  .chip {
-    flex: 1;
-    border-radius: var(--r) 0 0 var(--r);
-  }
+  /* Sub-channel expander */
+  .channel-block { display: flex; flex-direction: column; gap: 0; }
+  .chip-row { display: flex; align-items: center; gap: 0; }
   .chip-expand {
     flex-shrink: 0;
     width: 30px;
@@ -389,24 +467,25 @@
     display: none;
     align-items: center;
     justify-content: center;
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
+    background: var(--background);
+    border: 1px solid var(--border);
     border-left: none;
-    border-radius: 0 var(--r) var(--r) 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
     cursor: pointer;
-    color: var(--muted);
+    color: var(--muted-fg);
     transition: background 0.12s, color 0.12s;
     padding: 0;
+    box-shadow: var(--shadow-sm);
   }
   .chip-expand svg { width: 11px; height: 11px; transition: transform 0.18s; }
-  .chip-expand:hover { background: var(--rule); color: var(--ink); }
+  .chip-expand:hover { background: var(--secondary); color: var(--foreground); }
   .chip.on ~ .chip-expand {
     display: flex;
-    background: #1a1a1a;
-    border-color: var(--ink);
+    background: #27272a;
+    border-color: var(--primary);
     color: rgba(255,255,255,0.5);
   }
-  .chip.on ~ .chip-expand:hover { color: white; background: #222; }
+  .chip.on ~ .chip-expand:hover { color: white; background: #3f3f46; }
   .chip-expand.open svg { transform: rotate(180deg); }
 
   .sub-panel {
@@ -414,40 +493,39 @@
     flex-direction: column;
     gap: 4px;
     padding: 8px 10px 10px;
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
+    background: var(--muted);
+    border: 1px solid var(--border);
     border-top: none;
-    border-radius: 0 0 var(--r) var(--r);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
     animation: up 0.16s ease both;
   }
   .sub-panel.open { display: flex; }
   .sub-panel-label {
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 2px;
+    color: var(--muted-fg);
+    margin-bottom: 3px;
   }
-  .sub-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
+  .sub-options { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  /* shadcn-style toggle badges */
   .sub-opt {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 3px 9px;
-    font-size: 0.72rem;
+    padding: 3px 10px;
+    font-size: 0.75rem;
     font-weight: 500;
-    color: var(--muted);
-    background: var(--white);
-    border: 1px solid var(--rule-dark);
-    border-radius: 2px;
+    color: var(--muted-fg);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     user-select: none;
     transition: border-color 0.12s, color 0.12s, background 0.12s;
+    box-shadow: var(--shadow-sm);
   }
   .sub-opt:hover { border-color: var(--teal-light); color: var(--teal); }
   .sub-opt.on {
@@ -458,8 +536,8 @@
   .sub-opt input { display: none; }
   .sub-check {
     width: 10px; height: 10px;
-    border: 1px solid currentColor;
-    border-radius: 2px;
+    border: 1.5px solid currentColor;
+    border-radius: 3px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
@@ -471,116 +549,108 @@
     border-radius: 1px;
   }
 
-  /* ─── AUDIENCE SELECT ──────────────────────────────────── */
-  .aud-select {
+  /* ── shadcn Select ───────────────────────────────────────── */
+  .aud-select, .length-preset {
     width: 100%;
-    padding: 0.6rem 2rem 0.6rem 0.9rem;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.85rem;
-    color: var(--ink);
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
+    padding: 0.55rem 2rem 0.55rem 0.875rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
     outline: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 12px;
+    background-position: right 0.625rem center;
+    background-size: 14px;
     cursor: pointer;
-    transition: border-color 0.14s;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow-sm);
   }
-  .aud-select:focus { border-color: var(--teal); }
+  .aud-select:focus, .length-preset:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgb(24 24 27 / 0.1);
+  }
+  .length-preset { flex: 1; }
 
-  /* ─── LENGTH CONTROL ───────────────────────────────────── */
-  .length-row {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .length-preset {
-    flex: 1;
-    padding: 0.6rem 2rem 0.6rem 0.9rem;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.85rem;
-    color: var(--ink);
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23999' d='M8 10L3 5h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 12px;
-    cursor: pointer;
-    transition: border-color 0.14s;
-  }
-  .length-preset:focus { border-color: var(--teal); }
-
+  /* ── Length control ──────────────────────────────────────── */
+  .length-row { display: flex; align-items: center; gap: 6px; }
   .length-custom {
     display: none;
     align-items: center;
     gap: 6px;
-    margin-top: 7px;
+    margin-top: 6px;
     animation: up 0.18s ease both;
   }
   .length-custom.visible { display: flex; }
   .length-num {
     width: 88px;
     flex-shrink: 0;
-    padding: 0.55rem 0.7rem;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.85rem;
-    color: var(--ink);
-    background: var(--off-white);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
+    padding: 0.55rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
     outline: none;
-    transition: border-color 0.14s;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow-sm);
     -moz-appearance: textfield;
   }
-  .length-num:focus { border-color: var(--teal); background: var(--white); }
+  .length-num:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgb(24 24 27 / 0.1);
+  }
   .length-num::-webkit-inner-spin-button,
   .length-num::-webkit-outer-spin-button { -webkit-appearance: none; }
   .unit-toggle {
     display: flex;
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    overflow: hidden;
+    background: var(--muted);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    gap: 2px;
     flex-shrink: 0;
   }
   .unit-btn {
-    padding: 0.55rem 0.75rem;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.72rem;
+    padding: 0.35rem 0.625rem;
+    font-family: inherit;
+    font-size: 0.75rem;
     font-weight: 500;
-    color: var(--muted);
-    background: var(--off-white);
+    color: var(--muted-fg);
+    background: transparent;
     border: none;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background 0.12s, color 0.12s;
+    transition: background 0.12s, color 0.12s, box-shadow 0.12s;
   }
-  .unit-btn + .unit-btn { border-left: 1px solid var(--rule-dark); }
-  .unit-btn.active { background: var(--ink); color: var(--white); }
+  .unit-btn.active {
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--shadow-sm);
+  }
   .length-hint {
-    font-size: 0.65rem;
-    color: var(--muted);
+    font-size: 0.7rem;
+    color: var(--muted-fg);
     font-style: italic;
     line-height: 1.4;
     flex: 1;
   }
 
-  /* ─── REGENERATE BUTTON ────────────────────────────────── */
+  /* ── Buttons ─────────────────────────────────────────────── */
+
+  /* shadcn Button — outline */
   .regen-btn {
     width: 100%;
-    margin-top: 0.6rem;
-    padding: 0.65rem 1.5rem;
-    background: transparent;
-    color: var(--ink);
-    border: 1px solid var(--rule-dark);
-    border-radius: var(--r);
-    font-family: 'Inter Tight', sans-serif;
+    margin-top: 0.5rem;
+    padding: 0.55rem 1.25rem;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
     font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
@@ -588,23 +658,23 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    transition: border-color 0.14s, background 0.14s, color 0.14s;
-    letter-spacing: 0.01em;
+    transition: background 0.15s;
+    box-shadow: var(--shadow-sm);
   }
-  .regen-btn:hover { border-color: var(--teal); color: var(--teal); }
-  .regen-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .regen-btn:hover { background: var(--secondary); }
+  .regen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .regen-btn svg { width: 13px; height: 13px; transition: transform 0.4s; }
   .regen-btn.spinning svg { animation: rotate 0.65s linear infinite; }
 
-  /* ─── TRANSLATE BUTTON ─────────────────────────────────── */
+  /* shadcn Button — default (primary) */
   .go-btn {
     width: 100%;
-    margin-top: 1.4rem;
-    padding: 0.95rem 1.5rem;
-    background: var(--ink);
-    color: var(--white);
+    margin-top: 1.25rem;
+    padding: 0.875rem 1.5rem;
+    background: var(--primary);
+    color: var(--primary-fg);
     border: none;
-    border-radius: var(--r);
+    border-radius: var(--radius-md);
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1rem;
     font-weight: 500;
@@ -614,104 +684,100 @@
     align-items: center;
     justify-content: center;
     gap: 9px;
-    transition: background 0.14s, transform 0.1s;
-    letter-spacing: 0.01em;
+    transition: opacity 0.15s, transform 0.1s;
+    box-shadow: var(--shadow-sm);
   }
-  .go-btn:hover { background: var(--teal); }
+  .go-btn:hover { opacity: 0.9; }
   .go-btn:active { transform: scale(0.99); }
   .go-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   .go-btn svg { width: 15px; height: 15px; }
 
-  /* ─── ERROR ────────────────────────────────────────────── */
+  /* ── shadcn destructive alert ────────────────────────────── */
   .err {
     display: none;
     align-items: flex-start;
     gap: 8px;
     margin-top: 0.75rem;
-    padding: 0.7rem 0.9rem;
-    background: #FEF3F2;
-    border: 1px solid #FECDCA;
-    border-radius: var(--r);
+    padding: 0.75rem 1rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
     font-size: 0.8rem;
-    color: #B42318;
+    color: #dc2626;
     line-height: 1.5;
   }
   .err svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
 
-  /* ─── RESULTS ──────────────────────────────────────────── */
-  .results {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
+  /* ── Results ─────────────────────────────────────────────── */
+  .results { display: flex; flex-direction: column; gap: 1rem; }
 
   .empty {
-    border: 1px dashed var(--rule-dark);
-    border-radius: var(--r2);
-    padding: 4.5rem 2rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 4rem 2rem;
     text-align: center;
-    background: var(--off-white);
+    background: var(--muted);
   }
-  .empty svg { width: 30px; height: 30px; color: var(--rule-dark); margin-bottom: 1rem; }
-  .empty p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; max-width: 240px; margin: 0 auto; }
+  .empty svg { width: 28px; height: 28px; color: var(--border); margin-bottom: 1rem; }
+  .empty p { font-size: 0.82rem; color: var(--muted-fg); line-height: 1.7; max-width: 240px; margin: 0 auto; }
 
-  /* Result cards — white with teal top border, like slide 2 table rows */
+  /* shadcn Card — result */
   .result-card {
-    background: var(--white);
-    border: 1px solid var(--rule);
-    border-top: 2px solid var(--teal);
-    border-radius: var(--r2);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
     animation: up 0.28s ease both;
   }
   @keyframes up {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
   .r-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.7rem 1.2rem;
-    border-bottom: 1px solid var(--rule);
-    background: var(--off-white);
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--muted);
   }
   .r-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--teal);
     display: flex;
     align-items: center;
     gap: 7px;
   }
+
+  /* shadcn Button — ghost / small */
   .copy-btn {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
+    color: var(--muted-fg);
     background: transparent;
-    border: 1px solid var(--rule-dark);
-    border-radius: 2px;
-    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 5px;
-    transition: border-color 0.14s, color 0.14s;
+    transition: background 0.12s, color 0.12s;
+    letter-spacing: 0.03em;
   }
-  .copy-btn:hover { color: var(--ink); border-color: var(--ink); }
-  .copy-btn.done  { color: var(--sage); border-color: var(--sage); }
+  .copy-btn:hover { background: var(--background); color: var(--foreground); }
+  .copy-btn.done  { color: #16a34a; border-color: var(--sage-border); background: var(--sage-bg); }
   .copy-btn svg { width: 10px; height: 10px; }
 
-  .r-body { padding: 1.4rem; }
+  .r-body { padding: 1.25rem; }
   .r-text {
-    font-family: 'Inter Tight', sans-serif;
     font-size: 0.9rem;
     line-height: 1.8;
-    color: var(--ink-mid);
+    color: var(--foreground);
     white-space: pre-wrap;
   }
   .r-tags {
@@ -720,40 +786,41 @@
     gap: 5px;
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--border);
   }
+  /* shadcn Badge — secondary */
   .r-tag {
     font-size: 0.65rem;
     font-weight: 500;
     color: var(--teal);
     background: var(--teal-bg);
     border: 1px solid var(--teal-light);
-    border-radius: 2px;
-    padding: 2px 8px;
-    letter-spacing: 0.04em;
+    border-radius: var(--radius-full);
+    padding: 2px 9px;
+    letter-spacing: 0.03em;
   }
 
-  /* ─── WRITING PRACTICE ────────────────────────────────── */
+  /* ── Writing practice ────────────────────────────────────── */
   .practice-section {
-    max-width: 1240px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 2.5rem 6rem;
+    padding: 0 1.5rem 6rem;
   }
   .practice-divider {
     border: none;
-    border-top: 2px solid var(--teal);
+    border-top: 1px solid var(--border);
     margin-bottom: 2.5rem;
   }
   .practice-heading {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.5rem;
     font-weight: 500;
-    color: var(--ink);
+    color: var(--foreground);
     margin-bottom: 0.35rem;
   }
   .practice-sub {
-    font-size: 0.82rem;
-    color: var(--muted);
+    font-size: 0.875rem;
+    color: var(--muted-fg);
     margin-bottom: 2rem;
     line-height: 1.6;
   }
@@ -765,17 +832,13 @@
   }
   @media (max-width: 780px) { .practice-grid { grid-template-columns: 1fr; } }
 
-  .practice-pane {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
+  .practice-pane { display: flex; flex-direction: column; gap: 0; }
   .practice-pane-head {
-    padding: 0.7rem 1.2rem;
-    background: var(--off-white);
-    border: 1px solid var(--rule);
-    border-bottom: 2px solid var(--teal);
-    border-radius: var(--r2) var(--r2) 0 0;
+    padding: 0.75rem 1.25rem;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -783,195 +846,191 @@
   .practice-pane-label {
     font-size: 0.65rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--teal);
   }
   .practice-pane-body {
-    border: 1px solid var(--rule);
-    border-top: none;
-    border-radius: 0 0 var(--r2) var(--r2);
+    border: 1px solid var(--border);
+    border-radius: 0 0 var(--radius) var(--radius);
     overflow: hidden;
-    background: var(--white);
+    background: var(--background);
+    box-shadow: var(--shadow-sm);
   }
   .practice-textarea {
     width: 100%;
     min-height: 200px;
-    padding: 1rem 1.2rem;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.88rem;
+    padding: 1rem 1.25rem;
+    font-family: inherit;
+    font-size: 0.875rem;
     line-height: 1.75;
-    color: var(--ink);
+    color: var(--foreground);
     background: transparent;
     border: none;
     outline: none;
     resize: vertical;
   }
-  .practice-textarea::placeholder { color: var(--muted-light); }
-
+  .practice-textarea::placeholder { color: var(--muted-fg); }
   .practice-footer {
-    padding: 0.75rem 1.2rem;
-    border-top: 1px solid var(--rule);
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    background: var(--off-white);
+    background: var(--muted);
   }
+
+  /* shadcn Button — default */
   .feedback-btn {
-    padding: 0.55rem 1.25rem;
-    background: var(--ink);
-    color: var(--white);
+    padding: 0.5rem 1.125rem;
+    background: var(--primary);
+    color: var(--primary-fg);
     border: none;
-    border-radius: var(--r);
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 7px;
-    transition: background 0.14s;
+    transition: opacity 0.15s;
+    box-shadow: var(--shadow-sm);
   }
-  .feedback-btn:hover { background: var(--teal); }
+  .feedback-btn:hover { opacity: 0.9; }
   .feedback-btn:disabled { opacity: 0.35; cursor: not-allowed; }
   .feedback-btn svg { width: 13px; height: 13px; }
 
-  /* Feedback result pane */
   .feedback-empty {
     padding: 2.5rem 1.5rem;
     text-align: center;
   }
-  .feedback-empty svg { width: 24px; height: 24px; color: var(--rule-dark); margin-bottom: 0.75rem; }
-  .feedback-empty p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; max-width: 200px; margin: 0 auto; }
+  .feedback-empty svg { width: 24px; height: 24px; color: var(--border); margin-bottom: 0.75rem; }
+  .feedback-empty p { font-size: 0.8rem; color: var(--muted-fg); line-height: 1.6; max-width: 200px; margin: 0 auto; }
 
   .feedback-result {
-    padding: 1.25rem 1.4rem;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     animation: up 0.24s ease both;
   }
-  .feedback-verdict {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .feedback-verdict { display: flex; align-items: center; gap: 10px; }
+
+  /* shadcn Badge variants */
   .verdict-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
-    border-radius: 2px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
   }
-  .verdict-badge.great  { background: #EFF6F0; color: #3A7A44; border: 1px solid #A8C8AC; }
-  .verdict-badge.good   { background: #FFF8EC; color: #9A6500; border: 1px solid #E8C97A; }
-  .verdict-badge.needs  { background: #FEF3F2; color: #B42318; border: 1px solid #FECDCA; }
+  .verdict-badge.great { background: var(--sage-bg); color: #15803d; border: 1px solid var(--sage-border); }
+  .verdict-badge.good  { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
+  .verdict-badge.needs { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
   .verdict-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   .feedback-body {
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 0.88rem;
+    font-size: 0.875rem;
     line-height: 1.8;
-    color: var(--ink-mid);
+    color: var(--foreground);
   }
-  .feedback-body strong {
-    color: var(--ink);
-    font-weight: 600;
-  }
+  .feedback-body strong { color: var(--foreground); font-weight: 600; }
 
-  /* ─── PROMPTS REFERENCE ────────────────────────────────── */
+  /* ── Prompts reference ───────────────────────────────────── */
   .prompts-section {
-    max-width: 1240px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 2.5rem 6rem;
+    padding: 0 1.5rem 6rem;
   }
   .prompt-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: 1rem;
   }
   @media (max-width: 780px) { .prompt-grid { grid-template-columns: 1fr; } }
+
+  /* shadcn Card */
   .prompt-block {
-    border: 1px solid var(--rule);
-    border-top: 2px solid var(--teal);
-    border-radius: var(--r2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
-    background: var(--white);
+    background: var(--card);
+    box-shadow: var(--shadow-sm);
   }
   .prompt-block.full-width { grid-column: 1 / -1; }
   .prompt-block-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.65rem 1.1rem;
-    background: var(--off-white);
-    border-bottom: 1px solid var(--rule);
+    padding: 0.75rem 1.1rem;
+    background: var(--muted);
+    border-bottom: 1px solid var(--border);
   }
   .prompt-block-label {
     font-size: 0.65rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--teal);
   }
   .prompt-copy-btn {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
+    color: var(--muted-fg);
     background: transparent;
-    border: 1px solid var(--rule-dark);
-    border-radius: 2px;
-    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 5px;
-    transition: border-color 0.14s, color 0.14s;
+    transition: background 0.12s, color 0.12s;
+    letter-spacing: 0.03em;
   }
-  .prompt-copy-btn:hover { color: var(--ink); border-color: var(--ink); }
-  .prompt-copy-btn.done  { color: var(--sage); border-color: var(--sage); }
+  .prompt-copy-btn:hover { background: var(--background); color: var(--foreground); }
+  .prompt-copy-btn.done  { color: #16a34a; border-color: var(--sage-border); background: var(--sage-bg); }
   .prompt-copy-btn svg { width: 10px; height: 10px; }
   .prompt-text {
     margin: 0;
-    padding: 1.1rem 1.2rem;
-    font-family: 'Inter Tight', monospace;
-    font-size: 0.78rem;
+    padding: 1rem 1.1rem;
+    font-family: ui-monospace, 'Cascadia Code', monospace;
+    font-size: 0.775rem;
     line-height: 1.75;
-    color: var(--ink-mid);
+    color: var(--foreground);
     white-space: pre-wrap;
     word-break: break-word;
-    background: var(--white);
+    background: var(--background);
   }
 
-
+  /* ── Loading card ────────────────────────────────────────── */
   .loading-card {
-    background: var(--off-white);
-    border: 1px solid var(--rule);
-    border-top: 2px solid var(--teal-light);
-    border-radius: var(--r2);
-    padding: 1.6rem 1.4rem;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.25rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     animation: up 0.2s ease both;
+    box-shadow: var(--shadow-sm);
   }
   .spin {
-    width: 18px; height: 18px;
-    border: 2px solid var(--rule-dark);
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
     border-top-color: var(--teal);
     border-radius: 50%;
     animation: rotate 0.65s linear infinite;
     flex-shrink: 0;
   }
   @keyframes rotate { to { transform: rotate(360deg); } }
-  .loading-txt { font-size: 0.83rem; color: var(--muted); }
-  .loading-ch { color: var(--ink); font-weight: 600; }
+  .loading-txt { font-size: 0.85rem; color: var(--muted-fg); }
+  .loading-ch { color: var(--foreground); font-weight: 600; }
+
 </style>
 </head>
 <body>
@@ -982,8 +1041,21 @@
   <span class="badge">Beta</span>
 </header>
 
-
-
+<!-- ─── API KEY BAR ─────────────────────────────────────── -->
+<div class="key-bar">
+  <span class="key-label">Anthropic API Key</span>
+  <div class="key-wrap">
+    <input class="key-input" id="api-key-input" type="password"
+      placeholder="sk-ant-api03-…"
+      autocomplete="new-password" spellcheck="false" data-lpignore="true" data-1p-ignore>
+    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
+      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+    </button>
+  </div>
+  </div>
+</div>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
 <div class="hero">
@@ -1462,9 +1534,19 @@ function setRegenEnabled(enabled) {
 
 // ── API CONFIG ────────────────────────────────────────────────────────────────
 const API_MODEL = 'claude-sonnet-4-20250514';
-// __CLAUDE_API_KEY__ is replaced with the real value at build time by GitHub Actions.
-// It is never stored in version control.
-function getApiKey() { return '__CLAUDE_API_KEY__'; }
+function getApiKey() { return document.getElementById('api-key-input')?.value.trim() || ''; }
+
+function toggleKeyVisibility() {
+  const inp  = document.getElementById('api-key-input');
+  const icon = document.getElementById('key-eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27z"/>';
+  } else {
+    inp.type = 'password';
+    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+  }
+}
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -1671,6 +1753,8 @@ async function runTranslation(isRegen = false) {
 
   if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
 
+  if (!getApiKey()) { showErr(errEl, 'Please enter your Anthropic API key above.'); return; }
+
   const audience    = document.getElementById('audience-select').value;
   const lengthInstr = getLengthInstruction();
 
@@ -1762,6 +1846,11 @@ async function getFeedback() {
 
   if (!text) {
     pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please write something first.</p></div>`;
+    return;
+  }
+
+  if (!getApiKey()) {
+    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please enter your Anthropic API key at the top of the page.</p></div>`;
     return;
   }
 
