@@ -125,66 +125,6 @@
     line-height: 1.6;
   }
 
-  /* ── API KEY BAR ─────────────────────────────────────────── */
-  .key-bar {
-    background: var(--muted);
-    border-bottom: 1px solid var(--border);
-    padding: 8px 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .key-label {
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted-fg);
-    flex-shrink: 0;
-  }
-  .key-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex: 1;
-    max-width: 340px;
-    min-width: 140px;
-  }
-  /* shadcn Input */
-  .key-input {
-    width: 100%;
-    padding: 5px 28px 5px 10px;
-    font-family: ui-monospace, monospace;
-    font-size: 0.75rem;
-    background: var(--background);
-    border: 1px solid var(--input);
-    border-radius: var(--radius-md);
-    color: var(--foreground);
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    box-shadow: var(--shadow-sm);
-  }
-  .key-input:focus {
-    border-color: var(--ring);
-    box-shadow: 0 0 0 2px rgb(24 24 27 / 0.12);
-  }
-  .key-input::placeholder { color: var(--muted-fg); }
-  .key-eye {
-    position: absolute;
-    right: 7px;
-    background: none;
-    border: none;
-    color: var(--muted-fg);
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    transition: color 0.15s;
-  }
-  .key-eye:hover { color: var(--foreground); }
-  .key-eye svg { width: 13px; height: 13px; }
-  .key-link { font-size: 0.7rem; color: var(--muted-fg); }
-  .key-link a { color: var(--teal); text-decoration: none; }
-  .key-link a:hover { text-decoration: underline; }
 
   /* ── HERO ─────────────────────────────────────────────────── */
   .hero {
@@ -432,10 +372,10 @@
     padding: 0.5rem 0.75rem;
     background: var(--background);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    border-radius: var(--radius-md);
     cursor: pointer;
     user-select: none;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, border-radius 0.15s;
     flex: 1;
     box-shadow: var(--shadow-sm);
   }
@@ -446,6 +386,15 @@
   .chip.on {
     background: var(--primary);
     border-color: var(--primary);
+  }
+  .chip.on:hover { background: var(--primary); border-color: var(--primary); }
+  /* selected but panel closed — square right corners to join expander */
+  .chip.has-expander:not(.panel-open) {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+  }
+  /* selected and panel open — square bottom-left too */
+  .chip.panel-open {
+    border-radius: var(--radius-md) 0 0 0;
   }
   .chip input { display: none; }
   .chip-ico { font-size: 0.85rem; line-height: 1; }
@@ -473,7 +422,7 @@
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
     cursor: pointer;
     color: var(--muted-fg);
-    transition: background 0.12s, color 0.12s;
+    transition: background 0.12s, color 0.12s, border-radius 0.12s;
     padding: 0;
     box-shadow: var(--shadow-sm);
   }
@@ -486,6 +435,10 @@
     color: rgba(255,255,255,0.5);
   }
   .chip.on ~ .chip-expand:hover { color: white; background: #3f3f46; }
+  /* panel open — square bottom-right corner of expander */
+  .chip-expand.open {
+    border-radius: 0 var(--radius-md) 0 0;
+  }
   .chip-expand.open svg { transform: rotate(180deg); }
 
   .sub-panel {
@@ -1041,21 +994,6 @@
   <span class="badge">Beta</span>
 </header>
 
-<!-- ─── API KEY BAR ─────────────────────────────────────── -->
-<div class="key-bar">
-  <span class="key-label">Anthropic API Key</span>
-  <div class="key-wrap">
-    <input class="key-input" id="api-key-input" type="password"
-      placeholder="sk-ant-api03-…"
-      autocomplete="new-password" spellcheck="false" data-lpignore="true" data-1p-ignore>
-    <button class="key-eye" onclick="toggleKeyVisibility()" title="Show / hide">
-      <svg id="key-eye-icon" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-      </svg>
-    </button>
-  </div>
-  </div>
-</div>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
 <div class="hero">
@@ -1231,7 +1169,7 @@
         <!-- Custom Length -->
         <div class="channel-block" style="grid-column: 1 / -1">
           <div class="chip-row">
-            <label class="chip" id="chip-custom" style="border-radius:var(--r)">
+            <label class="chip" id="chip-custom">
               <input type="checkbox" value="custom">
               <span class="chip-ico">✏️</span>
               <span class="chip-lbl">Custom Length</span>
@@ -1534,19 +1472,9 @@ function setRegenEnabled(enabled) {
 
 // ── API CONFIG ────────────────────────────────────────────────────────────────
 const API_MODEL = 'claude-sonnet-4-20250514';
-function getApiKey() { return document.getElementById('api-key-input')?.value.trim() || ''; }
-
-function toggleKeyVisibility() {
-  const inp  = document.getElementById('api-key-input');
-  const icon = document.getElementById('key-eye-icon');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27z"/>';
-  } else {
-    inp.type = 'password';
-    icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
-  }
-}
+// __CLAUDE_API_KEY__ is replaced at build time by GitHub Actions.
+// It is never stored in version control.
+function getApiKey() { return '__CLAUDE_API_KEY__'; }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -1571,13 +1499,16 @@ document.querySelectorAll('.chip').forEach(chip => {
       const expandBtn = document.getElementById('expand-' + channel);
       const subOpts   = document.querySelectorAll('#subopts-' + channel + ' .sub-opt');
       if (cb.checked) {
+        chip.classList.add('has-expander');
         panel?.classList.add('open');
         expandBtn?.classList.add('open');
+        chip.classList.add('panel-open');
         subOpts.forEach(opt => {
           opt.querySelector('input').checked = true;
           opt.classList.add('on');
         });
       } else {
+        chip.classList.remove('has-expander', 'panel-open');
         panel?.classList.remove('open');
         expandBtn?.classList.remove('open');
         subOpts.forEach(opt => {
@@ -1601,9 +1532,11 @@ document.querySelectorAll('.sub-opt').forEach(opt => {
 function toggleExpand(channel) {
   const panel  = document.getElementById('sub-' + channel);
   const btn    = document.getElementById('expand-' + channel);
+  const chip   = document.getElementById('chip-' + channel);
   const isOpen = panel.classList.contains('open');
   panel.classList.toggle('open', !isOpen);
   btn.classList.toggle('open', !isOpen);
+  chip?.classList.toggle('panel-open', !isOpen);
 }
 
 function getSubSelections(channel) {
@@ -1768,8 +1701,6 @@ async function runTranslation(isRegen = false) {
 
   if (!sourceText) { showErr(errEl, 'Please add some source content first.'); return; }
 
-  if (!getApiKey()) { showErr(errEl, 'Please enter your Anthropic API key above.'); return; }
-
   const audience    = document.getElementById('audience-select').value;
   const lengthInstr = getLengthInstruction();
 
@@ -1861,11 +1792,6 @@ async function getFeedback() {
 
   if (!text) {
     pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please write something first.</p></div>`;
-    return;
-  }
-
-  if (!getApiKey()) {
-    pane.innerHTML = `<div class="feedback-empty"><p style="color:#B42318">Please enter your Anthropic API key at the top of the page.</p></div>`;
     return;
   }
 
