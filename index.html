@@ -1565,11 +1565,26 @@ document.querySelectorAll('.chip').forEach(chip => {
     chip.classList.toggle('on', cb.checked);
     const channel = cb.value;
     if (channel === 'custom') {
-      // Custom pill directly toggles its own sub-panel
       document.getElementById('sub-custom').classList.toggle('open', cb.checked);
-    } else if (!cb.checked) {
-      document.getElementById('sub-' + channel)?.classList.remove('open');
-      document.getElementById('expand-' + channel)?.classList.remove('open');
+    } else {
+      const panel     = document.getElementById('sub-' + channel);
+      const expandBtn = document.getElementById('expand-' + channel);
+      const subOpts   = document.querySelectorAll('#subopts-' + channel + ' .sub-opt');
+      if (cb.checked) {
+        panel?.classList.add('open');
+        expandBtn?.classList.add('open');
+        subOpts.forEach(opt => {
+          opt.querySelector('input').checked = true;
+          opt.classList.add('on');
+        });
+      } else {
+        panel?.classList.remove('open');
+        expandBtn?.classList.remove('open');
+        subOpts.forEach(opt => {
+          opt.querySelector('input').checked = false;
+          opt.classList.remove('on');
+        });
+      }
     }
   });
 });
