@@ -1826,48 +1826,62 @@ function generateClientUrl(client) {
   return `${base}#client=${hash}`;
 }
 
-async function shortenClientUrl(id) {
+function shortenClientUrl(id) {
   const display = document.getElementById(`share-url-display-${id}`);
   const btn = document.getElementById(`shorten-btn-${id}`);
   if (!display || !btn) return;
 
   const c = getClient(id);
-  const longUrl = generateClientUrl(c);
-  if (!longUrl) return;
+  if (!c) return;
 
-  const origHtml = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spin" style="width:12px;height:12px;border-width:1.5px;margin:0 2px"></div>`;
+  // Compress the config using LZ-based compression then base64url encode it
+  const payload = {};
+  URL_FIELDS.forEach(k => { if (c[k] !== undefined) payload[k] = c[k]; });
+  const json = JSON.stringify(payload);
 
   try {
-    const resp = await fetch(
-      `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`
-    );
-    const data = await resp.json();
-    const shortUrl = data?.shorturl;
-    if (!shortUrl) throw new Error(data?.errormessage || 'No URL returned');
+    // Use built-in CompressionStream (supported in all modern browsers)
+    const compressToBase64Url = async (str) => {
+      const bytes = new TextEncoder().encode(str);
+      const cs = new CompressionStream('deflate-raw');
+      const writer = cs.writable.getWriter();
+      writer.write(bytes);
+      writer.close();
+      const compressed = await new Response(cs.readable).arrayBuffer();
+      const b64 = btoa(String.fromCharCode(...new Uint8Array(compressed)));
+      return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    };
 
-    display.value = shortUrl;
-    await navigator.clipboard.writeText(shortUrl).catch(() => {});
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<div class="spin" style="width:12px;height:12px;border-width:1.5px;margin:0 2px"></div>`;
 
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied!`;
-    btn.style.color = 'var(--success)';
-    btn.style.borderColor = '#86efac';
-    btn.style.background = 'var(--success-bg)';
-    btn.disabled = false;
-    setTimeout(() => {
+    compressToBase64Url(json).then(compressed => {
+      const base = window.location.href.split('#')[0];
+      const shortUrl = `${base}#c=${compressed}`;
+
+      display.value = shortUrl;
+      navigator.clipboard.writeText(shortUrl).catch(() => {});
+
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied!`;
+      btn.style.color = 'var(--success)';
+      btn.style.borderColor = '#86efac';
+      btn.style.background = 'var(--success-bg)';
+      btn.disabled = false;
+      setTimeout(() => {
+        btn.innerHTML = origHtml;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+        btn.style.background = '';
+      }, 3000);
+    }).catch(() => {
       btn.innerHTML = origHtml;
-      btn.style.color = '';
-      btn.style.borderColor = '';
-      btn.style.background = '';
-    }, 3000);
+      btn.disabled = false;
+      alert('Compression failed. Try copying the full URL instead.');
+    });
 
   } catch(e) {
-    btn.innerHTML = origHtml;
-    btn.disabled = false;
-    await navigator.clipboard.writeText(longUrl).catch(() => {});
-    display.value = longUrl;
-    alert('URL shortener unavailable — long URL copied to clipboard instead.');
+    alert('Compression not supported in this browser.');
   }
 }
 
@@ -1903,46 +1917,85 @@ async function copyClientUrl(clientId) {
 // Read URL hash and return a client object if one is encoded, else null
 function getClientFromUrl() {
   const hash = window.location.hash;
-  const match = hash.match(/[#&]client=([^&]+)/);
-  if (!match) return null;
-  return hashToClient(match[1]);
+
+  // Format 1: compressed (#c=...)
+  const compressedMatch = hash.match(/[#&]c=([^&]+)/);
+  if (compressedMatch) {
+    return decompressClient(compressedMatch[1]);
+  }
+
+  // Format 2: plain base64 (#client=...)
+  const plainMatch = hash.match(/[#&]client=([^&]+)/);
+  if (plainMatch) {
+    return hashToClient(plainMatch[1]);
+  }
+
+  return null;
+}
+
+async function decompressClient(compressed) {
+  try {
+    const b64 = compressed.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '=='.slice(0, (4 - b64.length % 4) % 4);
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const ds = new DecompressionStream('deflate-raw');
+    const writer = ds.writable.getWriter();
+    writer.write(bytes);
+    writer.close();
+    const decompressed = await new Response(ds.readable).arrayBuffer();
+    const json = new TextDecoder().decode(decompressed);
+    return JSON.parse(json);
+  } catch(e) {
+    return null;
+  }
 }
 
 // ══════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════
-function init() {
-  // Check if a client config is encoded in the URL hash
-  const urlClient = getClientFromUrl();
-  if (urlClient) {
-    // URL-linked mode: boot straight into translator for this client,
-    // hide admin link, hide switcher — this is a dedicated client URL
-    currentTranslatorClientId = urlClient.id;
+async function init() {
+  const hash = window.location.hash;
 
-    // Inject into appData temporarily so renderTranslatorForClient can find it
-    const existing = appData.clients.find(c => c.id === urlClient.id);
-    if (!existing) appData.clients.push(urlClient);
-    else Object.assign(existing, urlClient); // keep in sync with URL
-
-    document.getElementById('translator-view').classList.add('active');
-    document.getElementById('admin-view').classList.remove('active');
-
-    // Hide the Admin link — clients don't need to see it
-    document.querySelectorAll('.admin-link').forEach(el => el.style.display = 'none');
-
-    renderTranslatorForClient(urlClient.id);
-
-    // Also hide the client switcher — this URL is for one client only
-    document.getElementById('switcher-wrap').style.display = 'none';
-    return;
+  // Compressed format (#c=...)
+  const compressedMatch = hash.match(/[#&]c=([^&]+)/);
+  if (compressedMatch) {
+    const urlClient = await decompressClient(compressedMatch[1]);
+    if (urlClient) {
+      bootTranslatorForUrlClient(urlClient);
+      return;
+    }
   }
 
-  // Normal mode: start in translator if clients exist, admin if none
+  // Plain base64 format (#client=...)
+  const plainMatch = hash.match(/[#&]client=([^&]+)/);
+  if (plainMatch) {
+    const urlClient = hashToClient(plainMatch[1]);
+    if (urlClient) {
+      bootTranslatorForUrlClient(urlClient);
+      return;
+    }
+  }
+
+  // Normal mode
   if (appData.clients.length) {
     goToTranslator();
   } else {
     goToAdmin();
   }
+}
+
+function bootTranslatorForUrlClient(urlClient) {
+  currentTranslatorClientId = urlClient.id;
+  const existing = appData.clients.find(c => c.id === urlClient.id);
+  if (!existing) appData.clients.push(urlClient);
+  else Object.assign(existing, urlClient);
+  document.getElementById('translator-view').classList.add('active');
+  document.getElementById('admin-view').classList.remove('active');
+  document.querySelectorAll('.admin-link').forEach(el => el.style.display = 'none');
+  renderTranslatorForClient(urlClient.id);
+  document.getElementById('switcher-wrap').style.display = 'none';
 }
 
 init();
