@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Translator — Agency Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ───────────────────────────────────────────── */
+:root {
+  --bg:          #f9f8f6;
+  --surface:     #ffffff;
+  --surface2:    #f3f2ef;
+  --border:      #e2e0da;
+  --border2:     #c8c5bc;
+  --fg:          #1a1916;
+  --fg2:         #5c5a54;
+  --fg3:         #9b9891;
+  --accent:      #2d5fff;
+  --accent-bg:   #eef1ff;
+  --accent-fg:   #1a3bcc;
+  --danger:      #dc2626;
+  --danger-bg:   #fef2f2;
+  --success:     #16a34a;
+  --success-bg:  #f0fdf4;
+  --radius:      8px;
+  --radius-lg:   12px;
+  --shadow-sm:   0 1px 2px rgb(0 0 0 / .06);
+  --shadow:      0 2px 8px rgb(0 0 0 / .08);
+  --shadow-md:   0 4px 16px rgb(0 0 0 / .10);
+
+  /* client brand — overridden per client */
+  --brand:       #2d5fff;
+  --brand-fg:    #ffffff;
+  --brand-light: #eef1ff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: 'DM Sans', ui-sans-serif, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+}
+.serif { font-family: 'DM Serif Display', Georgia, serif; }
+
+/* ── VIEWS ───────────────────────────────────────────── */
+.view { display: none; }
+.view.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ──────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  gap: 1rem;
+}
+.topbar-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.85rem; font-weight: 600; color: var(--fg);
+  letter-spacing: -0.01em; text-decoration: none;
+}
+.topbar-logo-img {
+  height: 28px; width: auto; max-width: 120px;
+  object-fit: contain;
+}
+.topbar-logo-text {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.1rem;
+  color: var(--brand);
+}
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.72rem; font-weight: 500;
+  color: var(--fg2); letter-spacing: 0.02em;
+}
+.pill.accent { background: var(--brand-light); border-color: var(--brand); color: var(--accent-fg); }
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.5rem 1rem;
+  font-family: inherit; font-size: 0.82rem; font-weight: 500;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.15s; line-height: 1;
+  background: var(--surface); color: var(--fg);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.btn:hover { background: var(--surface2); border-color: var(--border2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.btn-primary {
+  background: var(--fg); color: #fff; border-color: var(--fg);
+}
+.btn-primary:hover { opacity: 0.88; background: var(--fg); }
+.btn-brand {
+  background: var(--brand); color: var(--brand-fg); border-color: var(--brand);
+}
+.btn-brand:hover { opacity: 0.9; background: var(--brand); }
+.btn-danger { color: var(--danger); border-color: #fca5a5; }
+.btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+.btn-lg { padding: 0.72rem 1.4rem; font-size: 0.88rem; }
+.btn-sm { padding: 0.32rem 0.7rem; font-size: 0.72rem; }
+.btn-icon { padding: 0.4rem; width: 32px; height: 32px; justify-content: center; }
+.btn-icon svg { width: 15px; height: 15px; }
+
+/* ── FORM ELEMENTS ───────────────────────────────────── */
+input[type=text], input[type=url], input[type=number], input[type=password], textarea, select {
+  width: 100%;
+  font-family: inherit; font-size: 0.875rem; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); outline: none; line-height: 1.5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+input[type=text], input[type=url], input[type=number], input[type=password], select {
+  padding: 0.54rem 0.8rem; height: 38px;
+}
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235c5a54'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; padding-right: 2rem; }
+textarea { padding: 0.65rem 0.8rem; resize: vertical; }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgb(45 95 255 / .12); }
+input::placeholder, textarea::placeholder { color: var(--fg3); }
+label.field-label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--fg2); margin-bottom: 5px; letter-spacing: 0.01em; }
+.field-hint { font-size: 0.72rem; color: var(--fg3); margin-top: 4px; }
+.field { margin-bottom: 1rem; }
+
+/* ── CARD ────────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.card-head {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+}
+.card-title { font-size: 0.875rem; font-weight: 600; color: var(--fg); }
+.card-body { padding: 1.25rem; }
+
+/* ── INLINE ALERTS ───────────────────────────────────── */
+.alert {
+  display: none; align-items: flex-start; gap: 8px;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius); font-size: 0.8rem; line-height: 1.5;
+  border: 1px solid transparent;
+}
+.alert.visible { display: flex; }
+.alert svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+.alert-danger { background: var(--danger-bg); border-color: #fca5a5; color: var(--danger); }
+.alert-success { background: var(--success-bg); border-color: #86efac; color: var(--success); }
+
+/* ─────────────────────────────────────────────────────
+   ADMIN VIEW
+───────────────────────────────────────────────────── */
+#admin-view .topbar { background: #1a1916; border-color: #333; }
+#admin-view .topbar-brand { color: #fff; }
+.admin-badge { background: #333; border-color: #555; color: #aaa; }
+
+.admin-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  flex: 1; min-height: 0;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+}
+.sidebar-section-label {
+  padding: 1rem 1.25rem 0.5rem;
+  font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg3);
+}
+.client-list { flex: 1; overflow-y: auto; padding: 0.25rem 0.75rem 1rem; }
+.client-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius); cursor: pointer;
+  font-size: 0.85rem; color: var(--fg2); font-weight: 500;
+  border: 1px solid transparent;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+}
+.client-item:hover { background: var(--surface2); color: var(--fg); }
+.client-item.active { background: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent); }
+.client-item .client-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--brand);
+}
+.client-item.active .client-dot { background: var(--accent); }
+.sidebar-footer { padding: 0.75rem; border-top: 1px solid var(--border); }
+
+/* Main editor */
+.admin-main {
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+.admin-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1rem; text-align: center; padding: 3rem;
+}
+.admin-empty-icon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--surface2); display: flex; align-items: center; justify-content: center;
+}
+.admin-empty-icon svg { width: 24px; height: 24px; color: var(--fg3); }
+.admin-empty h3 { font-size: 1rem; font-weight: 600; color: var(--fg); }
+.admin-empty p { font-size: 0.85rem; color: var(--fg2); max-width: 320px; }
+
+.editor-header {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+}
+.editor-title { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; }
+.editor-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ── BRAND PREVIEW ────────────────────────────────────── */
+.brand-preview-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.brand-preview-logo {
+  height: 32px; width: auto; max-width: 130px; object-fit: contain;
+}
+.brand-preview-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.1rem; }
+.brand-preview-accent {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: auto; font-size: 0.75rem; color: var(--fg2);
+}
+.color-swatch {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1px solid rgb(0 0 0 / .1); flex-shrink: 0;
+}
+
+/* Brand colour inputs */
+.color-row { display: flex; align-items: center; gap: 8px; }
+.color-row input[type=color] {
+  width: 38px; height: 38px; padding: 2px; border-radius: 6px;
+  border: 1px solid var(--border); cursor: pointer; flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+.color-row input[type=text] { flex: 1; }
+
+/* Logo upload */
+.logo-upload-area {
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  text-align: center; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: 0.8rem; color: var(--fg2);
+}
+.logo-upload-area:hover { border-color: var(--accent); background: var(--accent-bg); }
+.logo-upload-area svg { width: 22px; height: 22px; color: var(--fg3); }
+.logo-preview-wrap { position: relative; display: inline-flex; align-items: center; }
+.logo-preview-wrap img { height: 36px; max-width: 160px; object-fit: contain; }
+.logo-remove {
+  position: absolute; top: -6px; right: -8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--danger); color: #fff; border: 1.5px solid #fff;
+  font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; line-height: 1;
+}
+
+/* ── CHANNELS TABLE ───────────────────────────────────── */
+.channels-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.channels-table th {
+  text-align: left; font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg3);
+  padding: 0 1rem 0.6rem;
+}
+.channels-table td { padding: 0.5rem 1rem; border-top: 1px solid var(--border); }
+.channels-table tr:last-child td { border-bottom: none; }
+.ch-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggle-switch {
+  position: relative; display: inline-block;
+  width: 32px; height: 18px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--border2); border-radius: 9px;
+  transition: background 0.2s;
+}
+.toggle-slider::after {
+  content: ''; position: absolute;
+  left: 2px; top: 2px;
+  width: 14px; height: 14px;
+  background: #fff; border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgb(0 0 0 / .2);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+.toggle-switch input:checked + .toggle-slider::after { transform: translateX(14px); }
+.ch-emoji { font-size: 1rem; }
+.ch-name { font-weight: 500; color: var(--fg); }
+.ch-desc { color: var(--fg2); font-size: 0.78rem; }
+
+/* ── VOICE GUIDE ──────────────────────────────────────── */
+.voice-tabs { display: flex; gap: 4px; margin-bottom: 1rem; }
+.voice-tab {
+  padding: 0.35rem 0.85rem;
+  font-family: inherit; font-size: 0.78rem; font-weight: 500;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--fg2); cursor: pointer;
+  transition: all 0.12s;
+}
+.voice-tab.active { background: var(--fg); color: #fff; border-color: var(--fg); }
+.voice-tab-pane { display: none; }
+.voice-tab-pane.active { display: block; }
+.voice-textarea { min-height: 180px; font-size: 0.83rem; line-height: 1.7; }
+
+/* drop zone feedback */
+.drop-highlight { border-color: var(--accent) !important; background: var(--accent-bg) !important; }
+
+/* ── API KEY ROW ──────────────────────────────────────── */
+.apikey-row { display: flex; gap: 8px; }
+.apikey-row input { flex: 1; font-family: ui-monospace, monospace; font-size: 0.82rem; letter-spacing: 0.02em; }
+
+/* ─────────────────────────────────────────────────────
+   TRANSLATOR VIEW
+───────────────────────────────────────────────────── */
+.translator-topbar { display: flex; align-items: center; gap: 12px; }
+
+/* Client switcher */
+.client-switcher-wrap { position: relative; }
+.client-switcher {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 10px 4px 4px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; user-select: none;
+  font-size: 0.82rem; font-weight: 500; color: var(--fg);
+  transition: border-color 0.12s;
+  max-width: 260px;
+}
+.client-switcher:hover { border-color: var(--border2); }
+.switcher-logo { height: 22px; max-width: 70px; object-fit: contain; border-radius: 3px; }
+.switcher-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.switcher-caret { color: var(--fg3); flex-shrink: 0; }
+.switcher-dropdown {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0;
+  min-width: 220px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md); z-index: 300; overflow: hidden;
+  padding: 4px;
+}
+.switcher-dropdown.open { display: block; }
+.switcher-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0.5rem 0.75rem; border-radius: var(--radius);
+  font-size: 0.83rem; font-weight: 500; color: var(--fg2);
+  cursor: pointer; transition: background 0.1s;
+}
+.switcher-item:hover { background: var(--surface2); color: var(--fg); }
+.switcher-item.active { background: var(--accent-bg); color: var(--accent-fg); }
+.switcher-item-logo { height: 18px; max-width: 55px; object-fit: contain; }
+.switcher-item-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* Hero */
+.translator-hero {
+  padding: 2.5rem 2rem 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.t-hero-inner { max-width: 1200px; margin: 0 auto; }
+.t-eyebrow {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--brand); margin-bottom: 0.6rem;
+}
+.t-headline {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 400; color: var(--fg);
+  line-height: 1.1; letter-spacing: -0.02em;
+  max-width: 600px; margin-bottom: 2rem;
+}
+.t-headline em { font-style: italic; color: var(--brand); }
+
+/* App grid */
+.translator-body { flex: 1; }
+.t-app {
+  max-width: 1200px; margin: 0 auto;
+  padding: 1.75rem 2rem 5rem;
+  display: grid; grid-template-columns: 400px 1fr; gap: 1.5rem; align-items: start;
+}
+@media (max-width: 860px) { .t-app { grid-template-columns: 1fr; padding: 1.25rem 1.25rem 4rem; } }
+@media (max-width: 600px) { .translator-hero { padding: 1.5rem 1.25rem 0; } }
+
+/* Input panel */
+.input-panel { position: sticky; top: 52px; }
+
+/* Tabs */
+.tab-bar {
+  display: flex; background: var(--surface2); border-radius: 7px;
+  padding: 3px; gap: 2px; margin-bottom: 0.875rem;
+}
+.tab-btn {
+  flex: 1; padding: 0.38rem 0.7rem;
+  font-family: inherit; font-size: 0.78rem; font-weight: 500;
+  color: var(--fg2); background: transparent;
+  border: none; border-radius: 5px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: background 0.12s, color 0.12s, box-shadow 0.12s;
+}
+.tab-btn svg { width: 11px; height: 11px; }
+.tab-btn.active {
+  background: var(--surface); color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* Source textarea */
+.source-ta { min-height: 130px; font-size: 0.83rem; line-height: 1.65; }
+.url-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.url-row input { flex: 1; }
+.fetched-ta { min-height: 90px; font-size: 0.83rem; margin-top: 0.75rem; }
+
+/* Section label */
+.sec { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg3); display: block; margin: 1.1rem 0 0.5rem; }
+
+/* Channel chips */
+.chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.channel-block { position: relative; }
+.chip-row { display: flex; gap: 0; }
+.chip {
+  flex: 1; display: flex; align-items: center; gap: 7px;
+  padding: 0.48rem 0.7rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; user-select: none;
+  transition: all 0.12s; box-shadow: var(--shadow-sm);
+}
+.chip:hover:not(.on) { border-color: var(--border2); background: var(--surface2); }
+.chip.on { background: var(--fg); border-color: var(--fg); }
+.chip.on .chip-lbl, .chip.on .chip-ico { color: #fff; }
+.chip.has-expand { border-radius: var(--radius) 0 0 var(--radius); }
+.chip.panel-open { border-radius: var(--radius) 0 0 0; }
+.chip input { display: none; }
+.chip-ico { font-size: 0.85rem; line-height: 1; flex-shrink: 0; }
+.chip-lbl { font-size: 0.78rem; font-weight: 500; color: var(--fg); }
+.chip-expand {
+  width: 28px; height: 100%; flex-shrink: 0;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-left: none; border-radius: 0 var(--radius) var(--radius) 0;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s;
+}
+.chip-expand:hover { background: var(--border); }
+.chip-expand svg { width: 14px; height: 14px; color: var(--fg2); transition: transform 0.15s; }
+.chip-expand.open svg { transform: rotate(180deg); }
+.sub-panel {
+  display: none; padding: 0.6rem 0.75rem;
+  background: var(--surface2); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.sub-panel.open { display: block; }
+.sub-panel-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg3); display: block; margin-bottom: 0.4rem; }
+.sub-options { display: flex; flex-wrap: wrap; gap: 4px; }
+.sub-opt {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 500; color: var(--fg2);
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; user-select: none; transition: all 0.1s;
+}
+.sub-opt:hover { border-color: var(--border2); color: var(--fg); }
+.sub-opt.on { background: var(--fg); border-color: var(--fg); color: #fff; }
+.sub-opt input { display: none; }
+.sub-check { display: none; }
+
+/* Custom length */
+.custom-length-wrap {
+  display: flex; align-items: center; gap: 6px; margin-top: 4px;
+}
+.length-num {
+  width: 80px !important; text-align: center;
+}
+.unit-toggle { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.unit-btn {
+  padding: 0 0.6rem; height: 30px;
+  font-family: inherit; font-size: 0.72rem; font-weight: 500;
+  border: none; background: var(--surface); color: var(--fg2); cursor: pointer;
+  transition: background 0.1s;
+}
+.unit-btn.active { background: var(--fg); color: #fff; }
+
+/* Audience select */
+.aud-select { margin-top: 0; }
+
+/* Go button */
+.go-btn {
+  width: 100%; margin-top: 1rem; padding: 0.72rem;
+  font-family: inherit; font-size: 0.9rem; font-weight: 600;
+  background: var(--brand); color: var(--brand-fg);
+  border: none; border-radius: var(--radius); cursor: pointer;
+  transition: opacity 0.15s; box-shadow: 0 2px 8px rgb(0 0 0 / .12);
+  letter-spacing: 0.01em;
+}
+.go-btn:hover { opacity: 0.9; }
+.go-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.regen-btn {
+  width: 100%; margin-top: 0.4rem; padding: 0.5rem;
+  font-family: inherit; font-size: 0.8rem; font-weight: 500;
+  background: transparent; color: var(--fg2);
+  border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background 0.12s;
+}
+.regen-btn:hover:not(:disabled) { background: var(--surface2); color: var(--fg); }
+.regen-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.regen-btn svg { width: 13px; height: 13px; }
+.regen-btn.spinning svg { animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Results */
+.results-panel { display: flex; flex-direction: column; gap: 0.875rem; }
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.75rem; text-align: center;
+  min-height: 240px; background: var(--surface); border: 1px dashed var(--border);
+  border-radius: var(--radius-lg); padding: 2rem;
+  color: var(--fg3); font-size: 0.85rem;
+}
+.empty-state svg { width: 28px; height: 28px; opacity: 0.4; }
+.loading-card {
+  display: flex; align-items: center; gap: 0.875rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
+  font-size: 0.85rem; color: var(--fg2);
+}
+.spin {
+  width: 16px; height: 16px; flex-shrink: 0;
+  border: 2px solid var(--border); border-top-color: var(--brand);
+  border-radius: 50%; animation: spin 0.65s linear infinite;
+}
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  animation: fadeUp 0.2s ease both;
+  box-shadow: var(--shadow-sm);
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.r-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.65rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border);
+}
+.r-label { font-size: 0.8rem; font-weight: 600; color: var(--fg); display: flex; align-items: center; gap: 6px; }
+.copy-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0.28rem 0.65rem; font-family: inherit; font-size: 0.72rem; font-weight: 500;
+  background: var(--surface); color: var(--fg2); border: 1px solid var(--border);
+  border-radius: 5px; cursor: pointer; transition: all 0.1s;
+}
+.copy-btn:hover { background: var(--fg); color: #fff; border-color: var(--fg); }
+.copy-btn.done { background: var(--success-bg); color: var(--success); border-color: #86efac; }
+.copy-btn svg { width: 10px; height: 10px; }
+.r-body { padding: 1rem 1.25rem; }
+.r-text { font-size: 0.875rem; line-height: 1.75; color: var(--fg); white-space: pre-wrap; }
+.r-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0.75rem; }
+.r-tag {
+  padding: 2px 8px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 999px; font-size: 0.7rem; color: var(--brand); font-weight: 500;
+}
+
+/* ── ADMIN SWITCH BUTTON ──────────────────────────────── */
+.admin-link {
+  font-size: 0.75rem; color: var(--fg2); text-decoration: none;
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.12s; cursor: pointer;
+  font-weight: 500;
+}
+.admin-link:hover { color: var(--fg); border-color: var(--border2); background: var(--surface2); }
+.admin-link svg { width: 12px; height: 12px; }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 700px) {
+  .admin-body { grid-template-columns: 1fr; }
+  .admin-sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     ADMIN VIEW
+════════════════════════════════════════════════════ -->
+<div id="admin-view" class="view active">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color:#888"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Agency Platform
+    </div>
+    <div class="topbar-right">
+      <span class="pill admin-badge">Admin</span>
+      <button class="btn btn-sm" onclick="goToTranslator()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        Open Translator
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+      <div class="sidebar-footer" style="border-top:none;border-bottom:1px solid var(--border)">
+        <button class="btn btn-primary" style="width:100%" onclick="createNewClient()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          New Client
+        </button>
+      </div>
+      <p class="sidebar-section-label">Clients</p>
+      <div class="client-list" id="client-list"></div>
+    </div>
+
+    <!-- Main editor -->
+    <div class="admin-main" id="admin-main">
+      <div class="admin-empty" id="admin-empty">
+        <div class="admin-empty-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        </div>
+        <h3>No client selected</h3>
+        <p>Create a new client or select one from the sidebar to start configuring their translator.</p>
+        <button class="btn btn-primary" onclick="createNewClient()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          New Client
+        </button>
+      </div>
+      <div id="client-editor" style="display:none; flex-direction:column; gap:1.5rem;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TRANSLATOR VIEW
+════════════════════════════════════════════════════ -->
+<div id="translator-view" class="view">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="translator-topbar">
+      <!-- Logo/name shown dynamically -->
+      <div id="t-brand"></div>
+      <!-- Client switcher -->
+      <div class="client-switcher-wrap" id="switcher-wrap">
+        <div class="client-switcher" id="client-switcher" onclick="toggleSwitcher()">
+          <span class="switcher-name" id="switcher-label">Select client</span>
+          <svg class="switcher-caret" viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="switcher-dropdown" id="switcher-dropdown"></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="admin-link" onclick="goToAdmin()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Admin
+      </button>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="translator-hero" id="translator-hero">
+    <div class="t-hero-inner">
+      <div class="t-eyebrow" id="t-eyebrow">Content Translator</div>
+      <h1 class="t-headline" id="t-headline">Translate content into <em>your brand voice</em></h1>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div class="translator-body">
+    <div class="t-app">
+      <!-- Input -->
+      <div class="input-panel card">
+        <div class="card-head">
+          <span class="card-title">Source Content</span>
+        </div>
+        <div class="card-body">
+          <div id="translate-error" class="alert alert-danger" style="margin-bottom:.75rem"></div>
+
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('text',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h12v2H3z"/></svg>
+              Paste text
+            </button>
+            <button class="tab-btn" onclick="switchTab('url',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+              From URL
+            </button>
+          </div>
+
+          <div class="tab-pane active" id="tab-text">
+            <textarea class="source-ta" id="source-text" placeholder="Paste source content to translate…"></textarea>
+          </div>
+          <div class="tab-pane" id="tab-url">
+            <div class="url-row">
+              <input type="url" id="source-url" placeholder="https://example.com/article">
+              <button class="btn btn-primary" id="fetch-btn" onclick="fetchUrl()" style="flex-shrink:0">Fetch</button>
+            </div>
+            <div id="url-error" class="alert alert-danger" style="margin-top:4px"></div>
+            <textarea class="fetched-ta" id="fetched-text" placeholder="Fetched content will appear here…"></textarea>
+          </div>
+
+          <span class="sec">Channels</span>
+          <div class="chip-grid" id="chip-grid"></div>
+
+          <span class="sec">Audience</span>
+          <select class="aud-select" id="audience-select">
+            <option value="general">General audience</option>
+            <option value="professional">Professional / B2B</option>
+            <option value="media">Media / press</option>
+            <option value="community">Community groups</option>
+          </select>
+
+          <button class="go-btn" id="translate-btn" onclick="runTranslation()">Translate</button>
+          <button class="regen-btn" id="regen-btn" onclick="regenAll()" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            Regenerate All
+          </button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-panel" id="results-panel">
+        <div class="empty-state" id="empty-state">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+          <p>Translated content will appear here — one card per channel.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  STATE & STORAGE
+// ══════════════════════════════════════════════════════════
+const STORE_KEY = 'agency_translator_v1';
+const API_MODEL = 'claude-sonnet-4-20250514';
+
+const ALL_CHANNELS = [
+  { id: 'social',   emoji: '📱', name: 'Social Media',      desc: 'Instagram, X/Twitter, LinkedIn, Facebook' },
+  { id: 'website',  emoji: '🌐', name: 'Website & UI',      desc: 'Hero copy, CTAs, feature descriptions' },
+  { id: 'email',    emoji: '📧', name: 'Email / Newsletter', desc: 'Subject lines, body copy, campaigns' },
+  { id: 'press',    emoji: '📰', name: 'Press & Media',      desc: 'Press releases, media pitches, fact sheets' },
+  { id: 'policy',   emoji: '📋', name: 'Policy & Reports',   desc: 'Briefs, one-pagers, executive summaries' },
+  { id: 'custom',   emoji: '✏️', name: 'Custom Length',      desc: 'Freeform output with a word/char limit' },
+];
+
+const CHANNEL_PROMPTS = {
+  social:  (subs) => `Write social media content. Produce clearly labeled sections for each platform. FORMAT: Instagram: 2–3 conversational paragraphs, 5 hashtags. X/Twitter: ≤280 chars, hook first. LinkedIn: 3–4 sentences, professional. Facebook: community-focused. Label each "## Platform".`,
+  website: (subs) => `Write UI/website copy. Produce clearly labeled sections. FORMAT: Hero headline (≤6 words), subheadline (1–2 sentences), CTA (verb-first). Feature description (title + 2–3 sentences). Tooltip (one sentence). Label each clearly.`,
+  email:   (subs) => `Write email/newsletter content. Produce: subject line (≤60 chars, curiosity-driven), preview text (≤90 chars), body copy (2–4 short paragraphs), CTA button text. Label each section clearly.`,
+  press:   (subs) => `Write press/media content. Produce: press release (inverted pyramid, placeholder quote, data point, CTA), media pitch (3–5 sentences, story angle), fact sheet (bullet format: lead stat, 3–5 supporting facts, 1 action). Label each "## Format".`,
+  policy:  (subs) => `Write policy/professional content. Produce: one-pager (300–500 words, headers: Situation / Impact / Actions / Levers), executive summary (150–250 words, outcome-focused). Label each "## Format".`,
+  custom:  (subs, len) => `Rewrite the source content in the brand voice as clean flowing prose. ${len || ''}`,
+};
+
+const AUDIENCE_NOTES = {
+  general:      'Audience: General public. Tone: warm, practical, accessible. Reading level: 8th grade.',
+  professional: 'Audience: Business/professional. Tone: precise, outcome-focused, evidence-based.',
+  media:        'Audience: Journalists. Tone: story-driven, fact-anchored, concise. Include hooks and data.',
+  community:    'Audience: Community groups. Tone: collaborative, accessible, emphasize shared benefit.',
+};
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { clients: [], apiKey: '' }; }
+  catch { return { clients: [], apiKey: '' }; }
+}
+function saveData(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+let appData = loadData();
+let activeClientId = appData.clients[0]?.id || null;
+let currentTranslatorClientId = appData.clients[0]?.id || null;
+let activeTab = 'text';
+let lastSourceText = '', lastAudience = 'general';
+
+function getClient(id) { return appData.clients.find(c => c.id === id); }
+
+function defaultClient(name = 'New Client') {
+  return {
+    id: genId(),
+    name,
+    logoDataUrl: '',
+    brandColor: '#2d5fff',
+    voiceGuide: '',
+    voiceGuideParsed: '',
+    enabledChannels: ['social','website','email','press','policy','custom'],
+    createdAt: Date.now(),
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+//  VIEW SWITCHING
+// ══════════════════════════════════════════════════════════
+function goToAdmin() {
+  document.getElementById('admin-view').classList.add('active');
+  document.getElementById('translator-view').classList.remove('active');
+  renderAdminSidebar();
+  if (activeClientId) renderClientEditor(activeClientId);
+}
+
+function goToTranslator() {
+  document.getElementById('translator-view').classList.add('active');
+  document.getElementById('admin-view').classList.remove('active');
+  renderTranslatorForClient(currentTranslatorClientId);
+}
+
+// ══════════════════════════════════════════════════════════
+//  ADMIN — SIDEBAR
+// ══════════════════════════════════════════════════════════
+function renderAdminSidebar() {
+  const list = document.getElementById('client-list');
+  if (!appData.clients.length) {
+    list.innerHTML = `<p style="font-size:.78rem;color:var(--fg3);padding:.5rem .65rem">No clients yet.</p>`;
+    return;
+  }
+  list.innerHTML = appData.clients.map(c => `
+    <div class="client-item ${c.id === activeClientId ? 'active' : ''}" onclick="selectClient('${c.id}')">
+      <span class="client-dot" style="background:${c.brandColor || '#2d5fff'}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
+    </div>
+  `).join('');
+}
+
+function selectClient(id) {
+  activeClientId = id;
+  renderAdminSidebar();
+  renderClientEditor(id);
+}
+
+function createNewClient() {
+  const c = defaultClient('New Client');
+  appData.clients.push(c);
+  saveData(appData);
+  activeClientId = c.id;
+  renderAdminSidebar();
+  renderClientEditor(c.id);
+}
+
+// ══════════════════════════════════════════════════════════
+//  ADMIN — CLIENT EDITOR
+// ══════════════════════════════════════════════════════════
+function renderClientEditor(id) {
+  const c = getClient(id);
+  if (!c) return;
+  document.getElementById('admin-empty').style.display = 'none';
+  const editor = document.getElementById('client-editor');
+  editor.style.display = 'flex';
+
+  const enabledSet = new Set(c.enabledChannels || ALL_CHANNELS.map(ch => ch.id));
+
+  editor.innerHTML = `
+    <!-- Header -->
+    <div class="editor-header">
+      <div>
+        <input type="text" id="client-name-input" value="${esc(c.name)}"
+          style="font-size:1.3rem;font-weight:600;letter-spacing:-.02em;border:1px solid transparent;background:transparent;padding:4px 6px;border-radius:6px;width:auto"
+          oninput="patchClient('${id}','name',this.value)"
+          onfocus="this.style.borderColor='var(--border)'"
+          onblur="this.style.borderColor='transparent'">
+        <div style="font-size:.78rem;color:var(--fg3);margin-top:2px;padding-left:7px">Client ID: ${id}</div>
+      </div>
+      <div class="editor-actions">
+        <button class="btn btn-sm" id="copy-url-btn-${id}" onclick="copyClientUrl('${id}')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+          Copy Link
+        </button>
+        <button class="btn btn-sm" onclick="previewClient('${id}')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          Preview
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteClient('${id}')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Brand -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">Branding</span></div>
+      <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+
+        <div class="field">
+          <label class="field-label">Logo</label>
+          ${c.logoDataUrl
+            ? `<div style="display:flex;align-items:center;gap:10px">
+                <div class="logo-preview-wrap">
+                  <img src="${c.logoDataUrl}" alt="logo">
+                  <span class="logo-remove" onclick="removeLogo('${id}')">×</span>
+                </div>
+                <button class="btn btn-sm" onclick="document.getElementById('logo-upload-${id}').click()">Replace</button>
+               </div>`
+            : `<div class="logo-upload-area" id="logo-drop-${id}"
+                 onclick="document.getElementById('logo-upload-${id}').click()"
+                 ondragover="event.preventDefault();event.stopPropagation();this.classList.add('drop-highlight');return false"
+                 ondragleave="this.classList.remove('drop-highlight')"
+                 ondrop="handleLogoDrop(event,'${id}')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span>Click or drag to upload logo</span>
+                <span style="font-size:.7rem;color:var(--fg3)">PNG, SVG, JPG · max 2 MB</span>
+               </div>`
+          }
+          <input type="file" id="logo-upload-${id}" accept="image/*" style="display:none" onchange="handleLogoUpload(event,'${id}')">
+        </div>
+
+        <div>
+          <div class="field">
+            <label class="field-label">Brand Color</label>
+            <div class="color-row">
+              <input type="color" id="color-picker-${id}" value="${c.brandColor || '#2d5fff'}"
+                oninput="syncColorHex('${id}',this.value)">
+              <input type="text" id="color-hex-${id}" value="${c.brandColor || '#2d5fff'}" maxlength="7" placeholder="#000000"
+                oninput="syncColorPicker('${id}',this.value)">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label" style="margin-bottom:4px">Preview</label>
+            <div class="brand-preview-bar" id="brand-preview-${id}">
+              ${c.logoDataUrl
+                ? `<img class="brand-preview-logo" src="${c.logoDataUrl}" alt="logo">`
+                : `<span class="brand-preview-name" style="color:${c.brandColor}">${esc(c.name)}</span>`}
+              <div class="brand-preview-accent" style="margin-left:auto">
+                <div class="color-swatch" style="background:${c.brandColor || '#2d5fff'}"></div>
+                <span>${c.brandColor || '#2d5fff'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voice & Tone -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Voice &amp; Tone Guide</span>
+        <span style="font-size:.72rem;color:var(--fg3)">Used as the AI's system instructions</span>
+      </div>
+      <div class="card-body">
+        <div class="voice-tabs">
+          <button class="voice-tab active" onclick="switchVoiceTab('write','${id}',this)">Write</button>
+          <button class="voice-tab" onclick="switchVoiceTab('upload','${id}',this)">Upload document</button>
+        </div>
+
+        <div class="voice-tab-pane active" id="vtp-write-${id}">
+          <textarea class="voice-textarea" id="voice-text-${id}"
+            placeholder="Describe the brand voice in plain language. For example:&#10;&#10;• Always address the reader as 'you'&#10;• Use short sentences (max 20 words)&#10;• Lead with benefits, not features&#10;• Avoid jargon, superlatives, and passive voice&#10;• Tone: direct, warm, and a little witty"
+            oninput="patchClient('${id}','voiceGuide',this.value)"
+          >${esc(c.voiceGuide || '')}</textarea>
+          <p class="field-hint">Be as specific as possible — the more context you give, the better the translations.</p>
+        </div>
+
+        <div class="voice-tab-pane" id="vtp-upload-${id}">
+          <div class="logo-upload-area" id="doc-drop-${id}"
+            onclick="document.getElementById('doc-upload-${id}').click()"
+            ondragover="event.preventDefault();event.stopPropagation();this.classList.add('drop-highlight');return false"
+            ondragleave="this.classList.remove('drop-highlight')"
+            ondrop="handleDocDrop(event,'${id}')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"/></svg>
+            <span>Click or drag a .txt, .md, .docx, or .pdf file</span>
+            <span style="font-size:.7rem;color:var(--fg3)">Text will be extracted automatically</span>
+          </div>
+          <input type="file" id="doc-upload-${id}" accept=".txt,.md,.docx,.pdf" style="display:none" onchange="handleDocUpload(event,'${id}')">
+          ${c.voiceGuideParsed ? `
+            <div style="margin-top:.75rem;padding:.65rem .875rem;background:var(--success-bg);border:1px solid #86efac;border-radius:var(--radius);font-size:.78rem;color:var(--success)">
+              ✓ Document uploaded — ${c.voiceGuideParsed.length} characters of guidance loaded.
+            </div>` : ''}
+          <p class="field-hint" style="margin-top:.5rem">Uploaded text will be combined with anything you've written in the Write tab.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Channels -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">Enabled Channels</span></div>
+      <div class="card-body" style="padding:0">
+        <table class="channels-table">
+          <thead><tr><th>Channel</th><th>Description</th><th>Enabled</th></tr></thead>
+          <tbody>
+            ${ALL_CHANNELS.map(ch => `
+              <tr>
+                <td><span class="ch-emoji">${ch.emoji}</span> <span class="ch-name">${ch.name}</span></td>
+                <td><span class="ch-desc">${ch.desc}</span></td>
+                <td>
+                  <label class="toggle-switch ch-toggle">
+                    <input type="checkbox" ${enabledSet.has(ch.id) ? 'checked' : ''}
+                      onchange="toggleChannel('${id}','${ch.id}',this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- API Key -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Anthropic API Key</span>
+        <span style="font-size:.72rem;color:var(--fg3)">Shared across all clients · stored in localStorage</span>
+      </div>
+      <div class="card-body">
+        <div class="apikey-row">
+          <input type="password" id="api-key-input" value="${esc(appData.apiKey || '')}"
+            placeholder="sk-ant-api03-…"
+            oninput="appData.apiKey=this.value;saveData(appData)">
+          <button class="btn" onclick="toggleApiKeyVisibility()">Show</button>
+        </div>
+        <p class="field-hint">Your key is never sent anywhere except directly to the Anthropic API.</p>
+      </div>
+    </div>
+
+    <!-- Shareable Link -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Shareable Client Link</span>
+        <span style="font-size:.72rem;color:var(--fg3)">Encodes the full config in the URL — no login needed</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="share-url-display-${id}" readonly
+            value="${generateClientUrl(c) || ''}"
+            style="font-size:.72rem;font-family:ui-monospace,monospace;color:var(--fg2);background:var(--surface2);cursor:pointer"
+            onclick="this.select()">
+          <button class="btn btn-primary btn-sm" id="copy-url-btn-bottom-${id}" onclick="copyClientUrl('${id}')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            Copy
+          </button>
+        </div>
+        <p class="field-hint" style="margin-top:6px">Anyone with this link opens the translator pre-loaded for <strong>${esc(c.name)}</strong>. The link updates automatically as you make changes — just copy it again after saving.</p>
+      </div>
+    </div>
+  `;
+}
+
+// ── PATCH / HELPERS ────────────────────────────────────────
+function patchClient(id, key, value) {
+  const c = getClient(id);
+  if (!c) return;
+  c[key] = value;
+  saveData(appData);
+  if (key === 'name') renderAdminSidebar();
+  // Refresh the live share URL display
+  const urlDisplay = document.getElementById(`share-url-display-${id}`);
+  if (urlDisplay) urlDisplay.value = generateClientUrl(c) || '';
+}
+
+function toggleChannel(id, channelId, enabled) {
+  const c = getClient(id);
+  if (!c) return;
+  if (!c.enabledChannels) c.enabledChannels = ALL_CHANNELS.map(ch => ch.id);
+  if (enabled) { if (!c.enabledChannels.includes(channelId)) c.enabledChannels.push(channelId); }
+  else { c.enabledChannels = c.enabledChannels.filter(x => x !== channelId); }
+  saveData(appData);
+  const urlDisplay = document.getElementById(`share-url-display-${id}`);
+  if (urlDisplay) urlDisplay.value = generateClientUrl(c) || '';
+}
+
+function deleteClient(id) {
+  if (!confirm('Delete this client? This cannot be undone.')) return;
+  appData.clients = appData.clients.filter(c => c.id !== id);
+  saveData(appData);
+  activeClientId = appData.clients[0]?.id || null;
+  renderAdminSidebar();
+  if (activeClientId) renderClientEditor(activeClientId);
+  else {
+    document.getElementById('admin-empty').style.display = 'flex';
+    document.getElementById('client-editor').style.display = 'none';
+  }
+}
+
+function previewClient(id) {
+  currentTranslatorClientId = id;
+  goToTranslator();
+}
+
+// ── LOGO ──────────────────────────────────────────────────
+function handleLogoUpload(e, id) { readImageFile(e.target.files[0], id); }
+function handleLogoDrop(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.getElementById('logo-drop-' + id);
+  if (el) el.classList.remove('drop-highlight');
+  readImageFile(e.dataTransfer.files[0], id);
+}
+function readImageFile(file, id) {
+  if (!file || !file.type.startsWith('image/')) return;
+  if (file.size > 2 * 1024 * 1024) { alert('Logo must be under 2 MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Remember which voice tab was active before re-rendering
+    const uploadPaneActive = document.getElementById(`vtp-upload-${id}`)?.classList.contains('active');
+    patchClient(id, 'logoDataUrl', e.target.result);
+    renderClientEditor(id);
+    // Restore the upload tab if it was open
+    if (uploadPaneActive) {
+      const writeTab  = document.querySelector(`#vtp-write-${id}`)?.previousElementSibling;
+      const uploadTab = writeTab?.nextElementSibling;
+      // Simpler: just toggle classes directly without going through switchVoiceTab
+      document.getElementById(`vtp-write-${id}`)?.classList.remove('active');
+      document.getElementById(`vtp-upload-${id}`)?.classList.add('active');
+      // Also update the tab button states
+      const tabBtns = document.querySelectorAll(`#client-editor .voice-tab`);
+      if (tabBtns.length >= 2) {
+        tabBtns[0].classList.remove('active');
+        tabBtns[1].classList.add('active');
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function removeLogo(id) { patchClient(id, 'logoDataUrl', ''); renderClientEditor(id); }
+
+// ── COLOR ─────────────────────────────────────────────────
+function syncColorHex(id, val) {
+  const hexInput = document.getElementById(`color-hex-${id}`);
+  if (hexInput) hexInput.value = val;
+  patchClient(id, 'brandColor', val);
+  refreshBrandPreview(id, val);
+}
+function syncColorPicker(id, val) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(val)) return;
+  const picker = document.getElementById(`color-picker-${id}`);
+  if (picker) picker.value = val;
+  patchClient(id, 'brandColor', val);
+  refreshBrandPreview(id, val);
+}
+function refreshBrandPreview(id, color) {
+  const c = getClient(id);
+  if (!c) return;
+  const prev = document.getElementById(`brand-preview-${id}`);
+  if (!prev) return;
+  prev.innerHTML = `
+    ${c.logoDataUrl
+      ? `<img class="brand-preview-logo" src="${c.logoDataUrl}" alt="logo">`
+      : `<span class="brand-preview-name" style="color:${color}">${esc(c.name)}</span>`}
+    <div class="brand-preview-accent" style="margin-left:auto">
+      <div class="color-swatch" style="background:${color}"></div>
+      <span>${color}</span>
+    </div>`;
+}
+
+// ── VOICE DOC UPLOAD ──────────────────────────────────────
+function handleDocDrop(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.getElementById('doc-drop-' + id);
+  if (el) el.classList.remove('drop-highlight');
+  handleDocFile(e.dataTransfer.files[0], id);
+}
+function handleDocUpload(e, id) { handleDocFile(e.target.files[0], id); }
+function handleDocFile(file, id) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  // After extraction, update state and refresh just the upload zone UI —
+  // never call renderClientEditor() which would reset the active tab back to "Write"
+  function onExtracted(text) {
+    patchClient(id, 'voiceGuideParsed', text);
+
+    // Replace the drop zone (which may be showing a spinner) with a success banner
+    const dropZone = document.getElementById('doc-drop-' + id);
+    const successHtml = `
+      <div id="doc-confirm-${id}" style="padding:.75rem 1rem;background:var(--success-bg);border:1px solid #86efac;border-radius:var(--radius);font-size:.82rem;color:var(--success);display:flex;align-items:center;gap:10px">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;flex-shrink:0"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+        <span><strong>${esc(file.name)}</strong> — ${text.length.toLocaleString()} characters loaded.</span>
+        <span style="margin-left:auto;display:flex;gap:10px;flex-shrink:0">
+          <button onclick="renderDocDropZone('${id}')" style="background:none;border:none;font-size:.75rem;color:var(--success);cursor:pointer;text-decoration:underline;font-family:inherit">Replace</button>
+          <button onclick="removeDocUpload('${id}')" style="background:none;border:none;font-size:.75rem;color:var(--danger);cursor:pointer;text-decoration:underline;font-family:inherit">Remove</button>
+        </span>
+      </div>`;
+
+    // Remove any existing confirmation first
+    document.getElementById('doc-confirm-' + id)?.remove();
+
+    if (dropZone) {
+      dropZone.outerHTML = successHtml;
+    } else {
+      // Drop zone already gone (e.g. already showing a previous confirmation) — just insert
+      const pane = document.getElementById('vtp-upload-' + id);
+      if (pane) pane.insertAdjacentHTML('afterbegin', successHtml);
+    }
+
+    // Refresh the share URL
+    const urlDisplay = document.getElementById(`share-url-display-${id}`);
+    const c = getClient(id);
+    if (urlDisplay && c) urlDisplay.value = generateClientUrl(c) || '';
+  }
+
+  if (ext === 'txt' || ext === 'md') {
+    const reader = new FileReader();
+    reader.onload = e => onExtracted(e.target.result);
+    reader.readAsText(file);
+
+  } else if (ext === 'pdf') {
+    const dropZone = document.getElementById('doc-drop-' + id);
+    if (dropZone) dropZone.innerHTML = `<div class="spin" style="margin:0 auto"></div><span>Reading PDF…</span>`;
+
+    const reader = new FileReader();
+    reader.onload = async e => {
+      // Use PDF.js 2.x UMD build — exposes window.pdfjsLib as a global
+      if (!window.pdfjsLib) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js');
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      }
+      try {
+        const typedArray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        const pages = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          pages.push(content.items.map(item => item.str).join(' '));
+        }
+        const text = pages.join('\n\n').trim();
+        if (!text) {
+          alert('Could not extract text from this PDF — it may be scanned or image-based. Try pasting the content instead.');
+          // Restore the drop zone
+          renderDocDropZone(id);
+          return;
+        }
+        onExtracted(text);
+      } catch(err) {
+        alert('Could not read PDF: ' + err.message);
+        renderDocDropZone(id);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+
+  } else if (ext === 'docx') {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js');
+      try {
+        const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+        onExtracted(result.value);
+      } catch { alert('Could not read .docx file. Try pasting the content instead.'); }
+    };
+    reader.readAsArrayBuffer(file);
+
+  } else {
+    alert('Please upload a .txt, .md, .pdf, or .docx file.');
+  }
+}
+
+function renderDocDropZone(id) {
+  // The drop zone was replaced via outerHTML when a doc was uploaded,
+  // so we need to find its container and re-insert it
+  const existingConfirm = document.getElementById('doc-confirm-' + id);
+  const pane = document.getElementById('vtp-upload-' + id);
+  if (!pane) return;
+
+  const dropHtml = `
+    <div class="logo-upload-area" id="doc-drop-${id}"
+      onclick="document.getElementById('doc-upload-${id}').click()"
+      ondragover="event.preventDefault();event.stopPropagation();this.classList.add('drop-highlight');return false"
+      ondragleave="this.classList.remove('drop-highlight')"
+      ondrop="handleDocDrop(event,'${id}')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"/></svg>
+      <span>Click or drag a .txt, .md, .docx, or .pdf file</span>
+      <span style="font-size:.7rem;color:var(--fg3)">Text will be extracted automatically</span>
+    </div>`;
+
+  if (existingConfirm) {
+    existingConfirm.outerHTML = dropHtml;
+  } else {
+    pane.insertAdjacentHTML('afterbegin', dropHtml);
+  }
+}
+
+function removeDocUpload(id) {
+  patchClient(id, 'voiceGuideParsed', '');
+  renderDocDropZone(id);
+}
+
+function loadScript(src, isModule = false) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    if (isModule) s.type = 'module';
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// ── VOICE TABS ────────────────────────────────────────────
+function switchVoiceTab(tab, id, btn) {
+  btn.closest('.card-body').querySelectorAll('.voice-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.closest('.card-body').querySelectorAll('.voice-tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(`vtp-${tab}-${id}`)?.classList.add('active');
+}
+
+// ── API KEY ────────────────────────────────────────────────
+function toggleApiKeyVisibility() {
+  const input = document.getElementById('api-key-input');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+// ══════════════════════════════════════════════════════════
+//  TRANSLATOR VIEW
+// ══════════════════════════════════════════════════════════
+function applyBrandCss(color) {
+  const root = document.documentElement;
+  root.style.setProperty('--brand', color);
+  root.style.setProperty('--brand-light', hexToAlpha(color, 0.1));
+  root.style.setProperty('--brand-fg', contrastColor(color));
+}
+
+function hexToAlpha(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function contrastColor(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return lum > 0.55 ? '#1a1916' : '#ffffff';
+}
+
+function renderTranslatorForClient(id) {
+  const clients = appData.clients;
+  // If no client, show empty state
+  if (!clients.length) {
+    document.getElementById('t-headline').textContent = 'No clients configured yet.';
+    document.getElementById('voice-pillars-strip').innerHTML = '';
+    document.getElementById('chip-grid').innerHTML = '';
+    document.getElementById('switcher-wrap').style.display = 'none';
+    return;
+  }
+
+  const c = id ? getClient(id) : clients[0];
+  if (!c) { renderTranslatorForClient(clients[0].id); return; }
+
+  currentTranslatorClientId = c.id;
+  applyBrandCss(c.brandColor || '#2d5fff');
+
+  // Topbar brand
+  const tBrand = document.getElementById('t-brand');
+  tBrand.innerHTML = c.logoDataUrl
+    ? `<img class="topbar-logo-img" src="${c.logoDataUrl}" alt="${esc(c.name)}">`
+    : `<span class="topbar-logo-text">${esc(c.name)}</span>`;
+
+  // Switcher
+  renderSwitcher(c);
+
+  // Hero
+  document.getElementById('t-eyebrow').textContent = `${c.name} · Content Translator`;
+  document.getElementById('t-headline').innerHTML = `Translate content into <em>${esc(c.name)}'s voice</em>`;
+
+  // Chips
+  renderChips(c);
+
+  // Translate button label
+  document.getElementById('translate-btn').textContent = `Translate to ${c.name} Voice`;
+
+  // Reset results
+  document.getElementById('results-panel').innerHTML = `
+    <div class="empty-state" id="empty-state">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+      <p>Translated content will appear here — one card per channel.</p>
+    </div>`;
+  document.getElementById('regen-btn').disabled = true;
+}
+
+function renderSwitcher(active) {
+  const switcher = document.getElementById('client-switcher');
+  const label = document.getElementById('switcher-label');
+
+  if (appData.clients.length <= 1) {
+    document.getElementById('switcher-wrap').style.display = 'none';
+    return;
+  }
+  document.getElementById('switcher-wrap').style.display = '';
+
+  label.textContent = active.name;
+
+  const dd = document.getElementById('switcher-dropdown');
+  dd.innerHTML = appData.clients.map(c => `
+    <div class="switcher-item ${c.id === active.id ? 'active' : ''}" onclick="switchClient('${c.id}')">
+      <span class="switcher-item-dot" style="background:${c.brandColor || '#2d5fff'}"></span>
+      ${c.logoDataUrl ? `<img class="switcher-item-logo" src="${c.logoDataUrl}" alt="${esc(c.name)}">` : ''}
+      <span>${esc(c.name)}</span>
+    </div>
+  `).join('');
+}
+
+function toggleSwitcher() {
+  document.getElementById('switcher-dropdown').classList.toggle('open');
+}
+
+function switchClient(id) {
+  document.getElementById('switcher-dropdown').classList.remove('open');
+  renderTranslatorForClient(id);
+  document.getElementById('source-text').value = '';
+  document.getElementById('fetched-text').value = '';
+  document.getElementById('source-url').value = '';
+  document.getElementById('translate-error').classList.remove('visible');
+  document.getElementById('url-error').classList.remove('visible');
+  lastSourceText = ''; lastAudience = 'general';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.client-switcher-wrap')) {
+    document.getElementById('switcher-dropdown')?.classList.remove('open');
+  }
+});
+
+// ── CHIPS ─────────────────────────────────────────────────
+function renderChips(c) {
+  const enabled = new Set(c.enabledChannels || ALL_CHANNELS.map(ch => ch.id));
+  const grid = document.getElementById('chip-grid');
+  const channels = ALL_CHANNELS.filter(ch => enabled.has(ch.id));
+
+  grid.innerHTML = channels.map(ch => {
+    if (ch.id === 'custom') return `
+      <div class="channel-block" style="grid-column:1/-1">
+        <div class="chip-row">
+          <label class="chip" id="chip-custom" onclick="handleChipClick('custom',this)">
+            <input type="checkbox" value="custom">
+            <span class="chip-ico">${ch.emoji}</span>
+            <span class="chip-lbl">${ch.name}</span>
+          </label>
+        </div>
+        <div class="sub-panel" id="sub-custom">
+          <span class="sub-panel-label">Max length</span>
+          <div class="custom-length-wrap">
+            <input class="length-num" id="length-num" type="number" min="10" max="10000" placeholder="300">
+            <div class="unit-toggle">
+              <button class="unit-btn active" id="unit-words" onclick="setUnit('words')">words</button>
+              <button class="unit-btn" id="unit-chars" onclick="setUnit('chars')">chars</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    const subs = getSubOptionsForChannel(ch.id);
+    return `
+      <div class="channel-block">
+        <div class="chip-row">
+          <label class="chip has-expand" id="chip-${ch.id}" onclick="handleChipClick('${ch.id}',this)">
+            <input type="checkbox" value="${ch.id}">
+            <span class="chip-ico">${ch.emoji}</span>
+            <span class="chip-lbl">${ch.name}</span>
+          </label>
+          <button class="chip-expand" id="expand-${ch.id}" onclick="toggleExpand('${ch.id}',event)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+        </div>
+        <div class="sub-panel" id="sub-${ch.id}">
+          <span class="sub-panel-label">Formats</span>
+          <div class="sub-options" id="subopts-${ch.id}">
+            ${subs.map(s => `
+              <label class="sub-opt" onclick="handleSubOpt('${ch.id}',this)">
+                <input type="checkbox" value="${esc(s)}" checked>
+                <span class="sub-check"></span>${esc(s)}
+              </label>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function getSubOptionsForChannel(id) {
+  return {
+    social:  ['Instagram','X / Twitter','LinkedIn','Facebook'],
+    website: ['Homepage hero','Feature description','CTA copy','Tooltip'],
+    email:   ['Subject line','Email body','Newsletter intro'],
+    press:   ['Press release','Media pitch','Fact sheet'],
+    policy:  ['One-pager','Executive summary','Full brief'],
+    custom:  [],
+  }[id] || [];
+}
+
+function handleChipClick(channel, chip) {
+  const cb = chip.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  chip.classList.toggle('on', cb.checked);
+  if (channel === 'custom') {
+    document.getElementById('sub-custom')?.classList.toggle('open', cb.checked);
+    return;
+  }
+  const panel = document.getElementById(`sub-${channel}`);
+  const expandBtn = document.getElementById(`expand-${channel}`);
+  if (cb.checked) {
+    chip.classList.add('panel-open');
+    panel?.classList.add('open');
+    expandBtn?.classList.add('open');
+    document.querySelectorAll(`#subopts-${channel} .sub-opt`).forEach(opt => {
+      opt.querySelector('input').checked = true;
+      opt.classList.add('on');
+    });
+  } else {
+    chip.classList.remove('panel-open');
+    panel?.classList.remove('open');
+    expandBtn?.classList.remove('open');
+  }
+}
+
+function handleSubOpt(channel, opt) {
+  const cb = opt.querySelector('input');
+  cb.checked = !cb.checked;
+  opt.classList.toggle('on', cb.checked);
+  const anyChecked = [...document.querySelectorAll(`#subopts-${channel} input:checked`)].length > 0;
+  const chip = document.getElementById(`chip-${channel}`);
+  const chipCb = chip?.querySelector('input');
+  if (!anyChecked && chip && chipCb) {
+    chipCb.checked = false;
+    chip.classList.remove('on','panel-open');
+    document.getElementById(`sub-${channel}`)?.classList.remove('open');
+    document.getElementById(`expand-${channel}`)?.classList.remove('open');
+  }
+}
+
+function toggleExpand(channel, e) {
+  e.stopPropagation();
+  const panel = document.getElementById(`sub-${channel}`);
+  const btn   = document.getElementById(`expand-${channel}`);
+  const chip  = document.getElementById(`chip-${channel}`);
+  const open  = panel.classList.contains('open');
+  panel.classList.toggle('open', !open);
+  btn.classList.toggle('open', !open);
+  chip?.classList.toggle('panel-open', !open);
+}
+
+let activeUnit = 'words';
+function setUnit(u) {
+  activeUnit = u;
+  document.getElementById('unit-words')?.classList.toggle('active', u === 'words');
+  document.getElementById('unit-chars')?.classList.toggle('active', u === 'chars');
+}
+
+function getLengthInstruction() {
+  const n = parseInt(document.getElementById('length-num')?.value);
+  if (!n) return '';
+  const unit = activeUnit;
+  let fmt = '';
+  if (unit === 'words') {
+    if (n <= 80) fmt = 'This should be a single sentence.';
+    else if (n <= 200) fmt = 'This should be 1–2 paragraphs.';
+    else fmt = 'This should be 3–5 paragraphs.';
+  } else {
+    if (n <= 500) fmt = 'This should be a single paragraph.';
+    else fmt = 'This should be 2–3 paragraphs.';
+  }
+  return `LENGTH: Write no more than ${n} ${unit}. ${fmt}`;
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`)?.classList.add('active');
+}
+
+// ── URL FETCH ─────────────────────────────────────────────
+async function fetchUrl() {
+  const url = document.getElementById('source-url').value.trim();
+  const errEl = document.getElementById('url-error');
+  const fetchBtn = document.getElementById('fetch-btn');
+  const fetched = document.getElementById('fetched-text');
+  errEl.classList.remove('visible');
+  if (!url) { showErr(errEl, 'Please enter a URL.'); return; }
+  fetchBtn.disabled = true; fetchBtn.textContent = 'Fetching…';
+  fetched.value = '';
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model: API_MODEL, max_tokens: 1500, tools:[{type:'web_search_20250305',name:'web_search'}], messages:[{role:'user',content:`Fetch the content of this URL and return ONLY the main body text as plain text, no HTML: ${url}`}] })
+    });
+    const data = await resp.json();
+    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    fetched.value = text || 'Could not extract text. Try pasting the content directly.';
+  } catch { showErr(errEl, 'Failed to fetch. Try pasting the content directly.'); }
+  finally { fetchBtn.disabled=false; fetchBtn.textContent='Fetch'; }
+}
+
+// ── TRANSLATION ────────────────────────────────────────────
+async function runTranslation(isRegen = false) {
+  const btn = document.getElementById('translate-btn');
+  const regen = document.getElementById('regen-btn');
+  const errEl = document.getElementById('translate-error');
+  errEl.classList.remove('visible');
+
+  let sourceText;
+  if (isRegen) { sourceText = lastSourceText; }
+  else {
+    sourceText = activeTab === 'text'
+      ? document.getElementById('source-text').value.trim()
+      : (document.getElementById('fetched-text').value.trim() || document.getElementById('source-url').value.trim());
+  }
+  if (!sourceText) { showErr(errEl,'Please add some source content first.'); return; }
+
+  const audience = document.getElementById('audience-select').value;
+  const selected = [...document.querySelectorAll('.chip-grid .chip input:checked')].map(cb => cb.value);
+  if (!selected.length) { showErr(errEl,'Please select at least one channel.'); return; }
+
+  lastSourceText = sourceText; lastAudience = audience;
+  btn.disabled = true; regen.disabled = true;
+  regen.classList.add('spinning');
+
+  const panel = document.getElementById('results-panel');
+  panel.innerHTML = '';
+
+  for (const channelId of selected) {
+    const ch = ALL_CHANNELS.find(c => c.id === channelId);
+    if (!ch) continue;
+    const subs = getSubSelections(channelId);
+    const lengthInstr = channelId === 'custom' ? getLengthInstruction() : '';
+    const channelPrompt = CHANNEL_PROMPTS[channelId]?.(subs, lengthInstr) || '';
+    const loadEl = mkLoading(ch.name);
+    panel.appendChild(loadEl);
+    try {
+      const result = await callClaude(sourceText, channelPrompt, audience, 0, loadEl);
+      panel.removeChild(loadEl);
+      panel.appendChild(mkResult(ch, result));
+    } catch(e) {
+      panel.removeChild(loadEl);
+      panel.appendChild(mkError(ch.name, e.message, e.isOverload));
+    }
+  }
+
+  btn.disabled = false; regen.disabled = false; regen.classList.remove('spinning');
+  if (!panel.children.length) panel.innerHTML = '<div class="empty-state"><p>No results generated. Please try again.</p></div>';
+}
+
+function regenAll() { runTranslation(true); }
+
+function getSubSelections(channel) {
+  const container = document.getElementById(`subopts-${channel}`);
+  if (!container) return [];
+  const checked = [...container.querySelectorAll('input:checked')].map(cb => cb.value);
+  const all = [...container.querySelectorAll('input')].map(cb => cb.value);
+  return (!all.length || checked.length === all.length) ? all : checked;
+}
+
+// ── CALL CLAUDE ────────────────────────────────────────────
+async function callClaude(sourceText, channelPrompt, audience, attempt = 0, loadEl = null) {
+  const c = getClient(currentTranslatorClientId);
+  const voiceGuide = [c?.voiceGuide || '', c?.voiceGuideParsed || ''].filter(Boolean).join('\n\n');
+
+  const systemPrompt = voiceGuide
+    ? `You are a content writer for ${c?.name || 'this brand'}.\n\nBRAND VOICE GUIDE:\n${voiceGuide}\n\nAlways follow this guide when writing. Adapt the style, tone, and language exactly as described.`
+    : `You are a professional content writer. Write clear, engaging, on-brand copy that matches the channel and audience.`;
+
+  const userPrompt = `${systemPrompt}\n\n${AUDIENCE_NOTES[audience] || ''}\n\n${channelPrompt}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above following the brand voice guide and channel requirements. Output only the translated content with no preamble or explanation.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model: API_MODEL, max_tokens: 1200, messages: [{role:'user',content:userPrompt}] })
+  });
+
+  // Auto-retry on overload (529) with exponential backoff, up to 3 attempts
+  if (resp.status === 529 && attempt < 3) {
+    const delay = (attempt + 1) * 8000; // 8s, 16s, 24s
+    if (loadEl) {
+      const txt = loadEl.querySelector('.loading-txt');
+      if (txt) txt.textContent = `API is busy — retrying in ${delay / 1000}s… (attempt ${attempt + 1}/3)`;
+    }
+    await new Promise(r => setTimeout(r, delay));
+    return callClaude(sourceText, channelPrompt, audience, attempt + 1, loadEl);
+  }
+
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    const msg = e?.error?.message || `API error ${resp.status}`;
+    const isOverload = resp.status === 529 || msg.toLowerCase().includes('overload');
+    const err = new Error(msg);
+    err.isOverload = isOverload;
+    throw err;
+  }
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+}
+
+function getApiKey() {
+  if (appData.apiKey) return appData.apiKey;
+  const key = prompt('Enter your Anthropic API key:') || '';
+  if (key) { appData.apiKey = key; saveData(appData); }
+  return key;
+}
+
+// ── UI BUILDERS ────────────────────────────────────────────
+function mkLoading(label) {
+  const el = document.createElement('div');
+  el.className = 'loading-card';
+  el.innerHTML = `<div class="spin"></div><div>Translating for <strong>${esc(label)}</strong>…</div>`;
+  return el;
+}
+
+function mkResult(ch, text) {
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  const tags = [...text.matchAll(/#\w+/g)].map(m => m[0]).slice(0,6);
+  const body = tags.length ? text.replace(/#\w+/g,'').trim() : text;
+  el.innerHTML = `
+    <div class="r-head">
+      <span class="r-label">${ch.emoji}&nbsp;${esc(ch.name)}</span>
+      <button class="copy-btn" onclick="doCopy(this,\`${escTpl(text)}\`)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+    </div>
+    <div class="r-body">
+      <div class="r-text">${esc(body)}</div>
+      ${tags.length ? `<div class="r-tags">${tags.map(t=>`<span class="r-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+    </div>`;
+  return el;
+}
+
+function mkError(label, msg, isOverload = false) {
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  const displayMsg = isOverload
+    ? 'The API is temporarily overloaded. Wait a moment, then use Regenerate All to retry.'
+    : (msg || 'Translation failed. Please try again.');
+  el.innerHTML = `
+    <div class="r-head"><span class="r-label">${esc(label)}</span></div>
+    <div class="r-body"><div class="alert alert-danger visible"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>${esc(displayMsg)}</div></div>`;
+  return el;
+}
+
+async function doCopy(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied`;
+    btn.classList.add('done');
+    setTimeout(() => { btn.innerHTML=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy`; btn.classList.remove('done'); }, 2000);
+  } catch {}
+}
+
+function showErr(el, msg) {
+  el.classList.add('visible');
+  el.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>${esc(msg)}`;
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escTpl(s) { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+
+// ══════════════════════════════════════════════════════════
+//  URL ENCODE / DECODE
+// ══════════════════════════════════════════════════════════
+
+// Fields included in the shareable URL (logo is included as dataUrl)
+const URL_FIELDS = ['id','name','logoDataUrl','brandColor','voiceGuide','voiceGuideParsed','enabledChannels'];
+
+function clientToHash(client) {
+  const payload = {};
+  URL_FIELDS.forEach(k => { if (client[k] !== undefined) payload[k] = client[k]; });
+  try {
+    const json = JSON.stringify(payload);
+    // Use TextEncoder + btoa for full Unicode support
+    const bytes = new TextEncoder().encode(json);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary);
+  } catch(e) {
+    console.error('Failed to encode client config:', e);
+    return null;
+  }
+}
+
+function hashToClient(hash) {
+  try {
+    const binary = atob(hash);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const json = new TextDecoder().decode(bytes);
+    return JSON.parse(json);
+  } catch(e) {
+    return null;
+  }
+}
+
+function generateClientUrl(client) {
+  const hash = clientToHash(client);
+  if (!hash) return null;
+  const base = window.location.href.split('#')[0];
+  return `${base}#client=${hash}`;
+}
+
+async function copyClientUrl(clientId) {
+  const c = getClient(clientId);
+  if (!c) return;
+  const url = generateClientUrl(c);
+  if (!url) { alert('Could not generate URL — config may be too large.'); return; }
+  try {
+    await navigator.clipboard.writeText(url);
+    // Flash feedback on whichever copy buttons exist
+    [`copy-url-btn-${clientId}`, `copy-url-btn-bottom-${clientId}`].forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      const orig = btn.innerHTML;
+      const origColor = btn.style.color;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied!`;
+      btn.style.color = 'var(--success)';
+      btn.style.borderColor = '#86efac';
+      btn.style.background = 'var(--success-bg)';
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.style.color = origColor;
+        btn.style.borderColor = '';
+        btn.style.background = '';
+      }, 2500);
+    });
+  } catch {
+    prompt('Copy this link:', url);
+  }
+}
+
+// Read URL hash and return a client object if one is encoded, else null
+function getClientFromUrl() {
+  const hash = window.location.hash;
+  const match = hash.match(/[#&]client=([^&]+)/);
+  if (!match) return null;
+  return hashToClient(match[1]);
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+function init() {
+  // Check if a client config is encoded in the URL hash
+  const urlClient = getClientFromUrl();
+  if (urlClient) {
+    // URL-linked mode: boot straight into translator for this client,
+    // hide admin link, hide switcher — this is a dedicated client URL
+    currentTranslatorClientId = urlClient.id;
+
+    // Inject into appData temporarily so renderTranslatorForClient can find it
+    const existing = appData.clients.find(c => c.id === urlClient.id);
+    if (!existing) appData.clients.push(urlClient);
+    else Object.assign(existing, urlClient); // keep in sync with URL
+
+    document.getElementById('translator-view').classList.add('active');
+    document.getElementById('admin-view').classList.remove('active');
+
+    // Hide the Admin link — clients don't need to see it
+    document.querySelectorAll('.admin-link').forEach(el => el.style.display = 'none');
+
+    renderTranslatorForClient(urlClient.id);
+
+    // Also hide the client switcher — this URL is for one client only
+    document.getElementById('switcher-wrap').style.display = 'none';
+    return;
+  }
+
+  // Normal mode: start in translator if clients exist, admin if none
+  if (appData.clients.length) {
+    goToTranslator();
+  } else {
+    goToAdmin();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
