@@ -1713,9 +1713,9 @@ async function callClaude(sourceText, channelPrompt, audience, attempt = 0, load
 }
 
 function getApiKey() {
-  // __ANTHROPIC_API_KEY__ is replaced at deploy time by GitHub Actions.
+  // __CLAUDE_API_KEY__ is replaced at deploy time by GitHub Actions.
   // Falls back to localStorage for local development.
-  const baked = '__ANTHROPIC_API_KEY__';
+  const baked = '__CLAUDE_API_KEY__';
   if (baked && !baked.startsWith('__')) return baked;
   if (appData.apiKey) return appData.apiKey;
   const key = prompt('Enter your Anthropic API key (dev only):') || '';
