@@ -1831,7 +1831,6 @@ async function shortenClientUrl(id) {
   const btn = document.getElementById(`shorten-btn-${id}`);
   if (!display || !btn) return;
 
-  // Always shorten the current long URL from the client config
   const c = getClient(id);
   const longUrl = generateClientUrl(c);
   if (!longUrl) return;
@@ -1841,10 +1840,12 @@ async function shortenClientUrl(id) {
   btn.innerHTML = `<div class="spin" style="width:12px;height:12px;border-width:1.5px;margin:0 2px"></div>`;
 
   try {
-    const resp = await fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(longUrl));
-    if (!resp.ok) throw new Error('TinyURL failed');
-    const shortUrl = (await resp.text()).trim();
-    if (!shortUrl.startsWith('https://tinyurl.com/')) throw new Error('Unexpected response');
+    const resp = await fetch(
+      `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`
+    );
+    const data = await resp.json();
+    const shortUrl = data?.shorturl;
+    if (!shortUrl) throw new Error(data?.errormessage || 'No URL returned');
 
     display.value = shortUrl;
     await navigator.clipboard.writeText(shortUrl).catch(() => {});
@@ -1864,7 +1865,6 @@ async function shortenClientUrl(id) {
   } catch(e) {
     btn.innerHTML = origHtml;
     btn.disabled = false;
-    // Fallback: just copy the long URL
     await navigator.clipboard.writeText(longUrl).catch(() => {});
     display.value = longUrl;
     alert('URL shortener unavailable — long URL copied to clipboard instead.');
