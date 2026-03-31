@@ -27,11 +27,11 @@ jobs:
 
       - name: Inject API key
         run: |
-          sed -i "s|__ANTHROPIC_API_KEY__|${{ secrets.ANTHROPIC_API_KEY }}|g" translator.html
+          sed -i "s|__ANTHROPIC_API_KEY__|${{ secrets.ANTHROPIC_API_KEY }}|g" nf-translate/translator.html
 
       - name: Verify injection
         run: |
-          if grep -q '__ANTHROPIC_API_KEY__' translator.html; then
+          if grep -q '__ANTHROPIC_API_KEY__' nf-translate/translator.html; then
             echo "ERROR: Placeholder was not replaced. Check that ANTHROPIC_API_KEY secret is set."
             exit 1
           else
@@ -41,7 +41,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: nf-translate
 
       - name: Deploy to GitHub Pages
         id: deployment
