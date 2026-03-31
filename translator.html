@@ -1022,23 +1022,6 @@ function renderClientEditor(id) {
       </div>
     </div>
 
-    <!-- API Key -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Anthropic API Key</span>
-        <span style="font-size:.72rem;color:var(--fg3)">Shared across all clients · stored in localStorage</span>
-      </div>
-      <div class="card-body">
-        <div class="apikey-row">
-          <input type="password" id="api-key-input" value="${esc(appData.apiKey || '')}"
-            placeholder="sk-ant-api03-…"
-            oninput="appData.apiKey=this.value;saveData(appData)">
-          <button class="btn" onclick="toggleApiKeyVisibility()">Show</button>
-        </div>
-        <p class="field-hint">Your key is never sent anywhere except directly to the Anthropic API.</p>
-      </div>
-    </div>
-
     <!-- Shareable Link -->
     <div class="card">
       <div class="card-head">
@@ -1536,11 +1519,18 @@ function handleSubOpt(channel, opt) {
   const anyChecked = [...document.querySelectorAll(`#subopts-${channel} input:checked`)].length > 0;
   const chip = document.getElementById(`chip-${channel}`);
   const chipCb = chip?.querySelector('input');
-  if (!anyChecked && chip && chipCb) {
-    chipCb.checked = false;
-    chip.classList.remove('on','panel-open');
-    document.getElementById(`sub-${channel}`)?.classList.remove('open');
-    document.getElementById(`expand-${channel}`)?.classList.remove('open');
+  if (chip && chipCb) {
+    if (anyChecked && !chipCb.checked) {
+      chipCb.checked = true;
+      chip.classList.add('on', 'has-expand', 'panel-open');
+      document.getElementById(`sub-${channel}`)?.classList.add('open');
+      document.getElementById(`expand-${channel}`)?.classList.add('open');
+    } else if (!anyChecked) {
+      chipCb.checked = false;
+      chip.classList.remove('on', 'has-expand', 'panel-open');
+      document.getElementById(`sub-${channel}`)?.classList.remove('open');
+      document.getElementById(`expand-${channel}`)?.classList.remove('open');
+    }
   }
 }
 
@@ -1627,7 +1617,19 @@ async function runTranslation(isRegen = false) {
   if (!sourceText) { showErr(errEl,'Please add some source content first.'); return; }
 
   const audience = document.getElementById('audience-select').value;
-  const selected = [...document.querySelectorAll('.chip-grid .chip input:checked')].map(cb => cb.value);
+
+  // Build selected channel list: include any channel where either the top-level chip
+  // is checked OR at least one sub-option is checked
+  const selected = ALL_CHANNELS
+    .filter(ch => {
+      const chipCb = document.querySelector(`#chip-${ch.id} input[type=checkbox]`);
+      if (chipCb?.checked) return true;
+      const subOpts = document.querySelectorAll(`#subopts-${ch.id} input:checked`);
+      return subOpts.length > 0;
+    })
+    .map(ch => ch.id)
+    .filter(id => document.getElementById(`chip-${id}`) || document.getElementById(`subopts-${id}`));
+
   if (!selected.length) { showErr(errEl,'Please select at least one channel.'); return; }
 
   lastSourceText = sourceText; lastAudience = audience;
@@ -1711,8 +1713,12 @@ async function callClaude(sourceText, channelPrompt, audience, attempt = 0, load
 }
 
 function getApiKey() {
+  // __ANTHROPIC_API_KEY__ is replaced at deploy time by GitHub Actions.
+  // Falls back to localStorage for local development.
+  const baked = '__ANTHROPIC_API_KEY__';
+  if (baked && !baked.startsWith('__')) return baked;
   if (appData.apiKey) return appData.apiKey;
-  const key = prompt('Enter your Anthropic API key:') || '';
+  const key = prompt('Enter your Anthropic API key (dev only):') || '';
   if (key) { appData.apiKey = key; saveData(appData); }
   return key;
 }
