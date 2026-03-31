@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -27,18 +26,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Inject API key
-        # Replaces the __CLAUDE_API_KEY__ placeholder in index.html with the
-        # real key from the repository secret. The key is never written to any
-        # file that gets committed — it only exists in the build output.
-        env:
-          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
         run: |
-          sed -i "s|__CLAUDE_API_KEY__|${CLAUDE_API_KEY}|g" index.html
+          sed -i "s|__ANTHROPIC_API_KEY__|${{ secrets.ANTHROPIC_API_KEY }}|g" translator.html
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Verify injection
+        run: |
+          if grep -q '__ANTHROPIC_API_KEY__' translator.html; then
+            echo "ERROR: Placeholder was not replaced. Check that ANTHROPIC_API_KEY secret is set."
+            exit 1
+          else
+            echo "✓ API key injected successfully"
+          fi
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
