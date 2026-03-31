@@ -1034,6 +1034,10 @@ function renderClientEditor(id) {
             value="${generateClientUrl(c) || ''}"
             style="font-size:.72rem;font-family:ui-monospace,monospace;color:var(--fg2);background:var(--surface2);cursor:pointer"
             onclick="this.select()">
+          <button class="btn btn-sm" id="shorten-btn-${id}" onclick="shortenClientUrl('${id}')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+            Shorten
+          </button>
           <button class="btn btn-primary btn-sm" id="copy-url-btn-bottom-${id}" onclick="copyClientUrl('${id}')">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
             Copy
@@ -1052,7 +1056,7 @@ function patchClient(id, key, value) {
   c[key] = value;
   saveData(appData);
   if (key === 'name') renderAdminSidebar();
-  // Refresh the live share URL display
+  // Refresh the live share URL display (always show long URL — shorten on demand)
   const urlDisplay = document.getElementById(`share-url-display-${id}`);
   if (urlDisplay) urlDisplay.value = generateClientUrl(c) || '';
 }
@@ -1820,6 +1824,51 @@ function generateClientUrl(client) {
   if (!hash) return null;
   const base = window.location.href.split('#')[0];
   return `${base}#client=${hash}`;
+}
+
+async function shortenClientUrl(id) {
+  const display = document.getElementById(`share-url-display-${id}`);
+  const btn = document.getElementById(`shorten-btn-${id}`);
+  if (!display || !btn) return;
+
+  // Always shorten the current long URL from the client config
+  const c = getClient(id);
+  const longUrl = generateClientUrl(c);
+  if (!longUrl) return;
+
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spin" style="width:12px;height:12px;border-width:1.5px;margin:0 2px"></div>`;
+
+  try {
+    const resp = await fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(longUrl));
+    if (!resp.ok) throw new Error('TinyURL failed');
+    const shortUrl = (await resp.text()).trim();
+    if (!shortUrl.startsWith('https://tinyurl.com/')) throw new Error('Unexpected response');
+
+    display.value = shortUrl;
+    await navigator.clipboard.writeText(shortUrl).catch(() => {});
+
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied!`;
+    btn.style.color = 'var(--success)';
+    btn.style.borderColor = '#86efac';
+    btn.style.background = 'var(--success-bg)';
+    btn.disabled = false;
+    setTimeout(() => {
+      btn.innerHTML = origHtml;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.style.background = '';
+    }, 3000);
+
+  } catch(e) {
+    btn.innerHTML = origHtml;
+    btn.disabled = false;
+    // Fallback: just copy the long URL
+    await navigator.clipboard.writeText(longUrl).catch(() => {});
+    display.value = longUrl;
+    alert('URL shortener unavailable — long URL copied to clipboard instead.');
+  }
 }
 
 async function copyClientUrl(clientId) {
