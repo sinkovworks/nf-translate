@@ -20,13 +20,21 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Debug secret availability
+        run: |
+          if [ -z "${{ secrets.CLAUDE_API_KEY }}" ]; then
+            echo "ERROR: CLAUDE_API_KEY secret is empty or not accessible"
+            exit 1
+          else
+            echo "✓ CLAUDE_API_KEY secret is available (length: ${#CLAUDE_API_KEY})"
+          fi
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
 
       - name: Inject API key
         run: |
