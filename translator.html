@@ -731,12 +731,7 @@ label.field-label { display: block; font-size: 0.78rem; font-weight: 500; color:
           <div class="chip-grid" id="chip-grid"></div>
 
           <span class="sec">Audience</span>
-          <select class="aud-select" id="audience-select">
-            <option value="general">General audience</option>
-            <option value="professional">Professional / B2B</option>
-            <option value="media">Media / press</option>
-            <option value="community">Community groups</option>
-          </select>
+          <select class="aud-select" id="audience-select"></select>
 
           <button class="go-btn" id="translate-btn" onclick="runTranslation()">Translate</button>
           <button class="regen-btn" id="regen-btn" onclick="regenAll()" disabled>
@@ -812,7 +807,9 @@ function defaultClient(name = 'New Client') {
     brandColor: '#2d5fff',
     voiceGuide: '',
     voiceGuideParsed: '',
-    enabledChannels: ['social','website','email','press','policy','custom'],
+    audiences: '',
+    enabledChannels: ALL_CHANNELS.map(ch => ch.id),
+    built: false,
     createdAt: Date.now(),
   };
 }
@@ -889,14 +886,6 @@ function renderClientEditor(id) {
         <div style="font-size:.78rem;color:var(--fg3);margin-top:2px;padding-left:7px">Client ID: ${id}</div>
       </div>
       <div class="editor-actions">
-        <button class="btn btn-sm" id="copy-url-btn-${id}" onclick="copyClientUrl('${id}')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-          Copy Link
-        </button>
-        <button class="btn btn-sm" onclick="previewClient('${id}')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-          Preview
-        </button>
         <button class="btn btn-danger btn-sm" onclick="deleteClient('${id}')">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
           Delete
@@ -976,6 +965,14 @@ function renderClientEditor(id) {
             oninput="patchClient('${id}','voiceGuide',this.value)"
           >${esc(c.voiceGuide || '')}</textarea>
           <p class="field-hint">Be as specific as possible — the more context you give, the better the translations.</p>
+          <div class="field" style="margin-top:1rem;margin-bottom:0">
+            <label class="field-label">Target audiences</label>
+            <input type="text" id="audiences-input-${id}"
+              placeholder="General population, media, healthcare professionals, etc."
+              value="${esc(c.audiences || '')}"
+              oninput="patchClient('${id}','audiences',this.value)">
+            <p class="field-hint">Comma-separated. These populate the audience dropdown in the translator. Leave blank to show only "General audience".</p>
+          </div>
         </div>
 
         <div class="voice-tab-pane" id="vtp-upload-${id}">
@@ -1022,11 +1019,12 @@ function renderClientEditor(id) {
       </div>
     </div>
 
-    <!-- Shareable Link -->
+    <!-- Shareable Link — only shown after translator is built -->
+    ${c.built ? `
     <div class="card">
       <div class="card-head">
-        <span class="card-title">Shareable Client Link</span>
-        <span style="font-size:.72rem;color:var(--fg3)">Encodes the full config in the URL — no login needed</span>
+        <span class="card-title">Translator Link</span>
+        <span style="font-size:.72rem;color:var(--fg3)">Share this link with your client</span>
       </div>
       <div class="card-body">
         <div style="display:flex;gap:8px;align-items:center">
@@ -1043,8 +1041,21 @@ function renderClientEditor(id) {
             Copy
           </button>
         </div>
-        <p class="field-hint" style="margin-top:6px">Anyone with this link opens the translator pre-loaded for <strong>${esc(c.name)}</strong>. The link updates automatically as you make changes — just copy it again after saving.</p>
+        <p class="field-hint" style="margin-top:6px">Anyone with this link opens the translator pre-loaded for <strong>${esc(c.name)}</strong>. Rebuild the translator after making changes to update the link.</p>
       </div>
+    </div>` : ''}
+
+    <!-- Build / Update action bar -->
+    <div id="build-bar-${id}" style="position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:1rem 1.5rem;margin-top:.5rem;display:flex;align-items:center;justify-content:flex-end;gap:0.75rem">
+      ${c.built ? `
+      <button class="btn btn-sm" onclick="openTranslator('${id}')" style="display:flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+        Open Translator
+      </button>` : ''}
+      <button class="btn btn-primary btn-lg" id="build-btn-${id}" onclick="buildTranslator('${id}')" style="flex-shrink:0;background:var(--brand);border-color:var(--brand);padding:0.72rem 1.4rem">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        ${c.built ? 'Update Translator' : 'Build Voice Translator'}
+      </button>
     </div>
   `;
 }
@@ -1056,7 +1067,7 @@ function patchClient(id, key, value) {
   c[key] = value;
   saveData(appData);
   if (key === 'name') renderAdminSidebar();
-  // Refresh the live share URL display (always show long URL — shorten on demand)
+  // Refresh the live share URL display (only exists when translator is built)
   const urlDisplay = document.getElementById(`share-url-display-${id}`);
   if (urlDisplay) urlDisplay.value = generateClientUrl(c) || '';
 }
@@ -1085,7 +1096,105 @@ function deleteClient(id) {
   }
 }
 
-function previewClient(id) {
+async function buildTranslator(id) {
+  const c = getClient(id);
+  if (!c) return;
+
+  const btn = document.getElementById(`build-btn-${id}`);
+  const voiceText = (c.voiceGuide || '').trim();
+  const uploadedText = (c.voiceGuideParsed || '').trim();
+  const combinedText = [voiceText, uploadedText].filter(Boolean).join('\n\n');
+
+  // 1. Check there's something to validate
+  if (!combinedText) {
+    showBuildError(id, 'Please write a voice guide or upload a document before building.');
+    return;
+  }
+
+  // 2. Check minimum length — too short to be meaningful
+  if (combinedText.length < 40) {
+    showBuildError(id, 'The voice guide is too short. Add more detail about the brand\'s tone and style.');
+    return;
+  }
+
+  // 3. Use Claude to validate the content isn't gibberish
+  if (btn) { btn.disabled = true; btn.innerHTML = `<div class="spin" style="width:14px;height:14px;border-width:2px;margin:0 4px"></div> Validating…`; }
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({
+        model: API_MODEL,
+        max_tokens: 100,
+        system: 'You are a content validator. Respond only with valid JSON, no markdown.',
+        messages: [{
+          role: 'user',
+          content: `Does the following text look like a genuine brand voice guide, tone of voice document, or writing style guide? It can be brief or detailed, formal or casual. Reject only if it is clearly gibberish, random characters, placeholder text (like "lorem ipsum"), or completely unrelated content (like code or a shopping list).
+
+Respond ONLY with JSON: {"valid": true} or {"valid": false, "reason": "one short sentence"}
+
+TEXT:
+---
+${combinedText.slice(0, 1500)}
+---`
+        }]
+      })
+    });
+
+    const data = await resp.json();
+    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    if (!result.valid) {
+      if (btn) { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> ${c.built ? 'Update Translator' : 'Build Voice Translator'}`; }
+      showBuildError(id, result.reason || 'The voice guide doesn\'t appear to contain valid brand guidance. Please review the content.');
+      return;
+    }
+  } catch(e) {
+    // If validation call fails, allow the build to proceed rather than blocking
+    console.warn('Voice guide validation failed, proceeding anyway:', e.message);
+  }
+
+  // All good — proceed with build
+  clearBuildError(id);
+  const wasBuilt = c.built;
+  c.built = true;
+  c.builtAt = Date.now();
+  saveData(appData);
+  renderAdminSidebar();
+  renderClientEditor(id);
+
+  const newBtn = document.getElementById(`build-btn-${id}`);
+  if (newBtn) {
+    const orig = newBtn.innerHTML;
+    newBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> ${wasBuilt ? 'Updated!' : 'Built!'}`;
+    newBtn.disabled = true;
+    setTimeout(() => { newBtn.innerHTML = orig; newBtn.disabled = false; }, 2000);
+  }
+}
+
+function showBuildError(id, msg) {
+  // Show error just above the build action bar
+  let errEl = document.getElementById(`build-error-${id}`);
+  if (!errEl) {
+    const bar = document.getElementById(`build-bar-${id}`);
+    if (!bar) return;
+    errEl = document.createElement('div');
+    errEl.id = `build-error-${id}`;
+    errEl.className = 'alert alert-danger visible';
+    errEl.style.marginBottom = '0.75rem';
+    bar.parentNode.insertBefore(errEl, bar);
+  }
+  errEl.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>${esc(msg)}`;
+  errEl.classList.add('visible');
+}
+
+function clearBuildError(id) {
+  document.getElementById(`build-error-${id}`)?.remove();
+}
+
+function openTranslator(id) {
   currentTranslatorClientId = id;
   goToTranslator();
 }
@@ -1370,6 +1479,9 @@ function renderTranslatorForClient(id) {
   // Chips
   renderChips(c);
 
+  // Audience dropdown — populated from client config
+  renderAudienceSelect(c);
+
   // Translate button label
   document.getElementById('translate-btn').textContent = `Translate to ${c.name} Voice`;
 
@@ -1380,6 +1492,41 @@ function renderTranslatorForClient(id) {
       <p>Translated content will appear here — one card per channel.</p>
     </div>`;
   document.getElementById('regen-btn').disabled = true;
+}
+
+function renderAudienceSelect(c) {
+  const select = document.getElementById('audience-select');
+  if (!select) return;
+
+  // Parse comma-separated audiences from client config
+  const raw = (c.audiences || '').trim();
+  const items = raw
+    ? raw.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  if (!items.length) {
+    // No audiences configured — show only General audience
+    select.innerHTML = `<option value="general">General audience</option>`;
+  } else {
+    select.innerHTML = items.map((label, i) =>
+      `<option value="custom_${i}">${esc(label)}</option>`
+    ).join('');
+  }
+}
+
+function getAudienceNote(audienceValue) {
+  // If it's a custom audience from the client config, build a note from the label
+  if (audienceValue === 'general') {
+    return 'Audience: General public. Tone: warm, practical, accessible. Reading level: 8th grade.';
+  }
+  if (audienceValue.startsWith('custom_')) {
+    const select = document.getElementById('audience-select');
+    const option = select?.options[select.selectedIndex];
+    const label = option?.text || audienceValue;
+    return `Audience: ${label}. Tailor the tone, vocabulary, and framing specifically for this audience.`;
+  }
+  // Fallback to static notes for any legacy values
+  return AUDIENCE_NOTES[audienceValue] || '';
 }
 
 function renderSwitcher(active) {
@@ -1416,7 +1563,10 @@ function switchClient(id) {
   document.getElementById('source-url').value = '';
   document.getElementById('translate-error').classList.remove('visible');
   document.getElementById('url-error').classList.remove('visible');
-  lastSourceText = ''; lastAudience = 'general';
+  lastSourceText = '';
+  // Reset audience to first option of the new client
+  const sel = document.getElementById('audience-select');
+  lastAudience = sel?.value || 'general';
 }
 
 document.addEventListener('click', e => {
@@ -1695,7 +1845,7 @@ ${voiceGuide}
 Follow this guide precisely. If the guide does not address something, default to clear, plain, professional writing. Do not invent brand attributes that are not in the guide.`
     : `You are a professional content writer. Write clear, plain, on-brand copy for ${clientName} based solely on the source content provided. Do not assume any brand personality, history, or style beyond what is in the source content itself.`;
 
-  const userPrompt = `${AUDIENCE_NOTES[audience] || ''}
+  const userPrompt = `${getAudienceNote(audience)}
 
 ${channelPrompt}
 
@@ -1814,7 +1964,7 @@ function escTpl(s) { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(
 // ══════════════════════════════════════════════════════════
 
 // Fields included in the shareable URL (logo is included as dataUrl)
-const URL_FIELDS = ['id','name','logoDataUrl','brandColor','voiceGuide','voiceGuideParsed','enabledChannels'];
+const URL_FIELDS = ['id','name','logoDataUrl','brandColor','voiceGuide','voiceGuideParsed','audiences','enabledChannels','built','builtAt'];
 
 function clientToHash(client) {
   const payload = {};
