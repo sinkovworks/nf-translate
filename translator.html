@@ -1679,17 +1679,42 @@ function getSubSelections(channel) {
 async function callClaude(sourceText, channelPrompt, audience, attempt = 0, loadEl = null) {
   const c = getClient(currentTranslatorClientId);
   const voiceGuide = [c?.voiceGuide || '', c?.voiceGuideParsed || ''].filter(Boolean).join('\n\n');
+  const clientName = c?.name || 'this brand';
 
-  const systemPrompt = voiceGuide
-    ? `You are a content writer for ${c?.name || 'this brand'}.\n\nBRAND VOICE GUIDE:\n${voiceGuide}\n\nAlways follow this guide when writing. Adapt the style, tone, and language exactly as described.`
-    : `You are a professional content writer. Write clear, engaging, on-brand copy that matches the channel and audience.`;
+  // System prompt passed as a dedicated parameter — not mixed into the user turn.
+  // Explicit blank-slate instruction ensures no carry-over from other clients or
+  // the model's prior knowledge of any brand.
+  const system = voiceGuide
+    ? `You are a content writer working exclusively for ${clientName}.
 
-  const userPrompt = `${systemPrompt}\n\n${AUDIENCE_NOTES[audience] || ''}\n\n${channelPrompt}\n\nSOURCE CONTENT TO TRANSLATE:\n---\n${sourceText.slice(0,4000)}\n---\n\nRewrite the above following the brand voice guide and channel requirements. Output only the translated content with no preamble or explanation.`;
+IMPORTANT: Approach every task as a blank slate. Do not draw on any prior knowledge of ${clientName} or any other brand. Your only source of truth for tone, style, and voice is the guide below. Ignore anything you may have previously learned about this brand or any other client.
+
+BRAND VOICE GUIDE FOR ${clientName.toUpperCase()}:
+${voiceGuide}
+
+Follow this guide precisely. If the guide does not address something, default to clear, plain, professional writing. Do not invent brand attributes that are not in the guide.`
+    : `You are a professional content writer. Write clear, plain, on-brand copy for ${clientName} based solely on the source content provided. Do not assume any brand personality, history, or style beyond what is in the source content itself.`;
+
+  const userPrompt = `${AUDIENCE_NOTES[audience] || ''}
+
+${channelPrompt}
+
+SOURCE CONTENT TO TRANSLATE:
+---
+${sourceText.slice(0, 4000)}
+---
+
+Rewrite the above following the brand voice guide and channel requirements exactly. Output only the translated content with no preamble, explanation, or commentary.`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-    body: JSON.stringify({ model: API_MODEL, max_tokens: 1200, messages: [{role:'user',content:userPrompt}] })
+    body: JSON.stringify({
+      model: API_MODEL,
+      max_tokens: 1200,
+      system,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
   });
 
   // Auto-retry on overload (529) with exponential backoff, up to 3 attempts
