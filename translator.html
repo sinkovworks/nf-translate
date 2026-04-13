@@ -601,6 +601,54 @@ label.field-label { display: block; font-size: 0.78rem; font-weight: 500; color:
 .admin-link:hover { color: var(--fg); border-color: var(--border2); background: var(--surface2); }
 .admin-link svg { width: 12px; height: 12px; }
 
+/* ── AUDIENCE BUILDER ─────────────────────────────────────── */
+.audience-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.audience-entry {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  overflow: hidden;
+}
+.audience-entry-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.audience-entry-head input {
+  flex: 1; font-weight: 600; font-size: 0.83rem;
+  background: transparent; border: none; box-shadow: none;
+  padding: 0; height: auto; outline: none; color: var(--fg);
+}
+.audience-entry-head input::placeholder { color: var(--fg3); font-weight: 400; }
+.audience-entry-head input:focus { box-shadow: none; border-color: transparent; }
+.audience-entry-body { padding: 0.65rem 0.75rem; }
+.audience-entry-body textarea {
+  min-height: 80px; font-size: 0.82rem; line-height: 1.6; resize: vertical;
+}
+.audience-remove-btn {
+  padding: 2px 6px; flex-shrink: 0;
+  background: none; border: 1px solid transparent; border-radius: 4px;
+  font-size: 0.72rem; color: var(--fg3); cursor: pointer; font-family: inherit;
+  transition: all 0.1s;
+}
+.audience-remove-btn:hover { color: var(--danger); border-color: #fca5a5; background: var(--danger-bg); }
+.add-audience-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0.45rem 0.9rem;
+  font-family: inherit; font-size: 0.8rem; font-weight: 500;
+  border: 1.5px dashed var(--border2); border-radius: var(--radius);
+  background: transparent; color: var(--fg2); cursor: pointer;
+  transition: all 0.12s; width: 100%; justify-content: center;
+  margin-top: 0.25rem;
+}
+.add-audience-btn:hover { border-color: var(--accent); color: var(--accent-fg); background: var(--accent-bg); }
+
+/* ── STRATEGY FIELDS ──────────────────────────────────────── */
+.strategy-field textarea {
+  min-height: 100px; font-size: 0.83rem; line-height: 1.7; resize: vertical;
+}
+
 /* ── RESPONSIVE ───────────────────────────────────────── */
 @media (max-width: 700px) {
   .admin-body { grid-template-columns: 1fr; }
@@ -807,7 +855,14 @@ function defaultClient(name = 'New Client') {
     brandColor: '#2d5fff',
     voiceGuide: '',
     voiceGuideParsed: '',
-    audiences: '',
+    // audienceList: array of { name, description } objects
+    audienceList: [],
+    // Strategy & messaging fields (all optional)
+    positioningStatement: '',
+    competitorFraming: '',
+    messagingPillars: '',
+    voiceToneRules: '',
+    vocabularyDos: '',
     enabledChannels: ALL_CHANNELS.map(ch => ch.id),
     built: false,
     createdAt: Date.now(),
@@ -965,14 +1020,6 @@ function renderClientEditor(id) {
             oninput="patchClient('${id}','voiceGuide',this.value)"
           >${esc(c.voiceGuide || '')}</textarea>
           <p class="field-hint">Be as specific as possible — the more context you give, the better the translations.</p>
-          <div class="field" style="margin-top:1rem;margin-bottom:0">
-            <label class="field-label">Target audiences</label>
-            <input type="text" id="audiences-input-${id}"
-              placeholder="General population, media, healthcare professionals, etc."
-              value="${esc(c.audiences || '')}"
-              oninput="patchClient('${id}','audiences',this.value)">
-            <p class="field-hint">Comma-separated. These populate the audience dropdown in the translator. Leave blank to show only "General audience".</p>
-          </div>
         </div>
 
         <div class="voice-tab-pane" id="vtp-upload-${id}">
@@ -1019,6 +1066,80 @@ function renderClientEditor(id) {
       </div>
     </div>
 
+    <!-- Target Audiences -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Target Audiences</span>
+        <span style="font-size:.72rem;color:var(--fg3)">Populates the audience dropdown in the translator</span>
+      </div>
+      <div class="card-body">
+        <div class="audience-list" id="audience-list-${id}">
+          ${renderAudienceListHtml(c, id)}
+        </div>
+        <button class="add-audience-btn" onclick="addAudience('${id}')">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Add audience
+        </button>
+        <p class="field-hint" style="margin-top:.65rem">Each audience appears in the translator dropdown. If you leave the name blank, one will be generated automatically. The description tells the AI how to tailor its writing for that audience.</p>
+      </div>
+    </div>
+
+    <!-- Strategy & Messaging -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Strategy &amp; Messaging</span>
+        <span style="font-size:.72rem;color:var(--fg3)">All fields optional — included in the AI prompt when provided</span>
+      </div>
+      <div class="card-body">
+
+        <div class="field strategy-field">
+          <label class="field-label">Positioning Statement</label>
+          <textarea id="positioning-${id}"
+            placeholder="How does this brand define its unique position in the market? e.g. 'We are the only platform that…'"
+            oninput="patchClient('${id}','positioningStatement',this.value)"
+          >${esc(c.positioningStatement || '')}</textarea>
+          <p class="field-hint">Used to anchor brand tone and differentiation in all translated content.</p>
+        </div>
+
+        <div class="field strategy-field">
+          <label class="field-label">Competitor Framing</label>
+          <textarea id="competitor-${id}"
+            placeholder="How should this brand be positioned relative to competitors? What should be avoided or highlighted?"
+            oninput="patchClient('${id}','competitorFraming',this.value)"
+          >${esc(c.competitorFraming || '')}</textarea>
+          <p class="field-hint">The AI won't name competitors directly but will use this to shape emphasis and framing.</p>
+        </div>
+
+        <div class="field strategy-field">
+          <label class="field-label">Messaging Pillars &amp; Supporting Points</label>
+          <textarea id="pillars-${id}"
+            placeholder="List the 3–5 core themes this brand always comes back to, with supporting points for each. e.g.&#10;&#10;1. Accessibility — plain language, no jargon, works for everyone&#10;2. Trust — transparent data practices, real outcomes&#10;3. …"
+            oninput="patchClient('${id}','messagingPillars',this.value)"
+          >${esc(c.messagingPillars || '')}</textarea>
+          <p class="field-hint">Translated content will reinforce these themes wherever appropriate.</p>
+        </div>
+
+        <div class="field strategy-field">
+          <label class="field-label">Voice &amp; Tone Rules</label>
+          <textarea id="voicetone-${id}"
+            placeholder="Specific rules for how to write. e.g.&#10;• Always use active voice&#10;• Keep sentences under 20 words&#10;• Lead with the benefit, not the feature&#10;• Never use exclamation marks&#10;• Avoid the words: 'leverage', 'synergy', 'robust'"
+            oninput="patchClient('${id}','voiceToneRules',this.value)"
+          >${esc(c.voiceToneRules || '')}</textarea>
+          <p class="field-hint">These rules are applied on top of anything in the Voice Guide above.</p>
+        </div>
+
+        <div class="field strategy-field" style="margin-bottom:0">
+          <label class="field-label">Vocabulary Dos &amp; Don'ts</label>
+          <textarea id="vocabulary-${id}"
+            placeholder="Words and phrases to use or avoid. e.g.&#10;&#10;Use: community, neighbors, residents, local&#10;Avoid: consumers, users, clients, stakeholders&#10;Prefer 'share' over 'distribute', 'home' over 'unit'"
+            oninput="patchClient('${id}','vocabularyDos',this.value)"
+          >${esc(c.vocabularyDos || '')}</textarea>
+          <p class="field-hint">The AI will apply these substitutions throughout all translated output.</p>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Shareable Link — only shown after translator is built -->
     ${c.built ? `
     <div class="card">
@@ -1061,15 +1182,87 @@ function renderClientEditor(id) {
 }
 
 // ── PATCH / HELPERS ────────────────────────────────────────
+// ── AUDIENCE LIST HELPERS ─────────────────────────────────
+function renderAudienceListHtml(c, id) {
+  const list = c.audienceList || [];
+  if (!list.length) return '';
+  return list.map((aud, idx) => audienceEntryHtml(id, idx, aud)).join('');
+}
+
+function audienceEntryHtml(clientId, idx, aud) {
+  return `
+    <div class="audience-entry" id="aud-entry-${clientId}-${idx}">
+      <div class="audience-entry-head">
+        <input type="text"
+          placeholder="Audience name (e.g. Healthcare Professionals)"
+          value="${esc(aud.name || '')}"
+          oninput="patchAudience('${clientId}',${idx},'name',this.value)">
+        <button class="audience-remove-btn" onclick="removeAudience('${clientId}',${idx})" title="Remove audience">Remove</button>
+      </div>
+      <div class="audience-entry-body">
+        <textarea
+          placeholder="Describe this audience — who they are, what they care about, what tone works best for them, any jargon or vocabulary level notes…"
+          oninput="patchAudience('${clientId}',${idx},'description',this.value)"
+        >${esc(aud.description || '')}</textarea>
+      </div>
+    </div>`;
+}
+
+function addAudience(clientId) {
+  const c = getClient(clientId);
+  if (!c) return;
+  if (!c.audienceList) c.audienceList = [];
+  c.audienceList.push({ name: '', description: '' });
+  saveData(appData);
+  const list = document.getElementById(`audience-list-${clientId}`);
+  if (list) {
+    const idx = c.audienceList.length - 1;
+    list.insertAdjacentHTML('beforeend', audienceEntryHtml(clientId, idx, c.audienceList[idx]));
+    // Focus the new name input
+    const newEntry = document.getElementById(`aud-entry-${clientId}-${idx}`);
+    newEntry?.querySelector('input')?.focus();
+  }
+  refreshShareUrl(clientId);
+}
+
+function removeAudience(clientId, idx) {
+  const c = getClient(clientId);
+  if (!c || !c.audienceList) return;
+  c.audienceList.splice(idx, 1);
+  saveData(appData);
+  // Re-render the whole list to fix indices
+  const list = document.getElementById(`audience-list-${clientId}`);
+  if (list) list.innerHTML = renderAudienceListHtml(c, clientId);
+  refreshShareUrl(clientId);
+}
+
+function patchAudience(clientId, idx, field, value) {
+  const c = getClient(clientId);
+  if (!c || !c.audienceList || !c.audienceList[idx]) return;
+  c.audienceList[idx][field] = value;
+  saveData(appData);
+  refreshShareUrl(clientId);
+}
+
+function refreshShareUrl(id) {
+  const c = getClient(id);
+  const urlDisplay = document.getElementById(`share-url-display-${id}`);
+  if (urlDisplay && c) urlDisplay.value = generateClientUrl(c) || '';
+}
+
+function getAudienceNameForIdx(c, idx) {
+  if (!c || !c.audienceList || !c.audienceList[idx]) return `Audience ${idx + 1}`;
+  const name = (c.audienceList[idx].name || '').trim();
+  return name || `Audience ${idx + 1}`;
+}
+
 function patchClient(id, key, value) {
   const c = getClient(id);
   if (!c) return;
   c[key] = value;
   saveData(appData);
   if (key === 'name') renderAdminSidebar();
-  // Refresh the live share URL display (only exists when translator is built)
-  const urlDisplay = document.getElementById(`share-url-display-${id}`);
-  if (urlDisplay) urlDisplay.value = generateClientUrl(c) || '';
+  refreshShareUrl(id);
 }
 
 function toggleChannel(id, channelId, enabled) {
@@ -1079,8 +1272,7 @@ function toggleChannel(id, channelId, enabled) {
   if (enabled) { if (!c.enabledChannels.includes(channelId)) c.enabledChannels.push(channelId); }
   else { c.enabledChannels = c.enabledChannels.filter(x => x !== channelId); }
   saveData(appData);
-  const urlDisplay = document.getElementById(`share-url-display-${id}`);
-  if (urlDisplay) urlDisplay.value = generateClientUrl(c) || '';
+  refreshShareUrl(id);
 }
 
 function deleteClient(id) {
@@ -1451,7 +1643,8 @@ function renderTranslatorForClient(id) {
   // If no client, show empty state
   if (!clients.length) {
     document.getElementById('t-headline').textContent = 'No clients configured yet.';
-    document.getElementById('voice-pillars-strip').innerHTML = '';
+    const strip = document.getElementById('voice-pillars-strip');
+    if (strip) strip.innerHTML = '';
     document.getElementById('chip-grid').innerHTML = '';
     document.getElementById('switcher-wrap').style.display = 'none';
     return;
@@ -1498,34 +1691,41 @@ function renderAudienceSelect(c) {
   const select = document.getElementById('audience-select');
   if (!select) return;
 
-  // Parse comma-separated audiences from client config
-  const raw = (c.audiences || '').trim();
-  const items = raw
-    ? raw.split(',').map(s => s.trim()).filter(Boolean)
-    : [];
+  const list = (c.audienceList || []).filter(a => a && (a.name || a.description));
 
-  if (!items.length) {
-    // No audiences configured — show only General audience
+  if (!list.length) {
     select.innerHTML = `<option value="general">General audience</option>`;
   } else {
-    select.innerHTML = items.map((label, i) =>
-      `<option value="custom_${i}">${esc(label)}</option>`
-    ).join('');
+    select.innerHTML = list.map((aud, i) => {
+      const label = (aud.name || '').trim() || `Audience ${i + 1}`;
+      return `<option value="aud_${i}">${esc(label)}</option>`;
+    }).join('');
   }
 }
 
 function getAudienceNote(audienceValue) {
-  // If it's a custom audience from the client config, build a note from the label
   if (audienceValue === 'general') {
     return 'Audience: General public. Tone: warm, practical, accessible. Reading level: 8th grade.';
   }
+  if (audienceValue.startsWith('aud_')) {
+    const idx = parseInt(audienceValue.slice(4), 10);
+    const c = getClient(currentTranslatorClientId);
+    const aud = c?.audienceList?.[idx];
+    if (aud) {
+      const name = (aud.name || '').trim() || `Audience ${idx + 1}`;
+      const desc = (aud.description || '').trim();
+      return desc
+        ? `Target Audience: ${name}\n${desc}`
+        : `Target Audience: ${name}. Tailor the tone, vocabulary, and framing specifically for this audience.`;
+    }
+  }
+  // Fallback for any legacy 'custom_N' values from old configs
   if (audienceValue.startsWith('custom_')) {
     const select = document.getElementById('audience-select');
     const option = select?.options[select.selectedIndex];
     const label = option?.text || audienceValue;
     return `Audience: ${label}. Tailor the tone, vocabulary, and framing specifically for this audience.`;
   }
-  // Fallback to static notes for any legacy values
   return AUDIENCE_NOTES[audienceValue] || '';
 }
 
@@ -1831,19 +2031,32 @@ async function callClaude(sourceText, channelPrompt, audience, attempt = 0, load
   const voiceGuide = [c?.voiceGuide || '', c?.voiceGuideParsed || ''].filter(Boolean).join('\n\n');
   const clientName = c?.name || 'this brand';
 
-  // System prompt passed as a dedicated parameter — not mixed into the user turn.
-  // Explicit blank-slate instruction ensures no carry-over from other clients or
-  // the model's prior knowledge of any brand.
+  // Build optional strategy sections — only included when the admin has filled them in
+  const strategyBlocks = [];
+  if ((c?.positioningStatement || '').trim())
+    strategyBlocks.push(`POSITIONING STATEMENT:\n${c.positioningStatement.trim()}`);
+  if ((c?.competitorFraming || '').trim())
+    strategyBlocks.push(`COMPETITOR FRAMING:\n${c.competitorFraming.trim()}`);
+  if ((c?.messagingPillars || '').trim())
+    strategyBlocks.push(`MESSAGING PILLARS & SUPPORTING POINTS:\n${c.messagingPillars.trim()}`);
+  if ((c?.voiceToneRules || '').trim())
+    strategyBlocks.push(`VOICE & TONE RULES:\n${c.voiceToneRules.trim()}`);
+  if ((c?.vocabularyDos || '').trim())
+    strategyBlocks.push(`VOCABULARY DOS & DON'TS:\n${c.vocabularyDos.trim()}`);
+  const strategySection = strategyBlocks.length
+    ? `\n\nSTRATEGY & MESSAGING GUIDANCE:\n${strategyBlocks.join('\n\n')}`
+    : '';
+
   const system = voiceGuide
     ? `You are a content writer working exclusively for ${clientName}.
 
 IMPORTANT: Approach every task as a blank slate. Do not draw on any prior knowledge of ${clientName} or any other brand. Your only source of truth for tone, style, and voice is the guide below. Ignore anything you may have previously learned about this brand or any other client.
 
 BRAND VOICE GUIDE FOR ${clientName.toUpperCase()}:
-${voiceGuide}
+${voiceGuide}${strategySection}
 
 Follow this guide precisely. If the guide does not address something, default to clear, plain, professional writing. Do not invent brand attributes that are not in the guide.`
-    : `You are a professional content writer. Write clear, plain, on-brand copy for ${clientName} based solely on the source content provided. Do not assume any brand personality, history, or style beyond what is in the source content itself.`;
+    : `You are a professional content writer. Write clear, plain, on-brand copy for ${clientName} based solely on the source content provided. Do not assume any brand personality, history, or style beyond what is in the source content itself.${strategySection}`;
 
   const userPrompt = `${getAudienceNote(audience)}
 
@@ -1964,7 +2177,7 @@ function escTpl(s) { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(
 // ══════════════════════════════════════════════════════════
 
 // Fields included in the shareable URL (logo is included as dataUrl)
-const URL_FIELDS = ['id','name','logoDataUrl','brandColor','voiceGuide','voiceGuideParsed','audiences','enabledChannels','built','builtAt'];
+const URL_FIELDS = ['id','name','logoDataUrl','brandColor','voiceGuide','voiceGuideParsed','audienceList','positioningStatement','competitorFraming','messagingPillars','voiceToneRules','vocabularyDos','enabledChannels','built','builtAt'];
 
 function clientToHash(client) {
   const payload = {};
@@ -2131,6 +2344,7 @@ async function decompressClient(compressed) {
 //  INIT
 // ══════════════════════════════════════════════════════════
 async function init() {
+  migrateClientData();
   const hash = window.location.hash;
 
   // Compressed format (#c=...)
@@ -2159,6 +2373,30 @@ async function init() {
   } else {
     goToAdmin();
   }
+}
+
+// Migrate old clients that stored audiences as a comma-separated string
+function migrateClientData() {
+  let dirty = false;
+  appData.clients.forEach(c => {
+    if (typeof c.audiences === 'string' && c.audiences.trim()) {
+      // Convert old comma-separated string to audienceList entries
+      if (!c.audienceList || !c.audienceList.length) {
+        c.audienceList = c.audiences.split(',')
+          .map(s => s.trim()).filter(Boolean)
+          .map(name => ({ name, description: '' }));
+        dirty = true;
+      }
+      delete c.audiences;
+      dirty = true;
+    }
+    if (!c.audienceList) { c.audienceList = []; dirty = true; }
+    // Ensure new strategy fields exist
+    ['positioningStatement','competitorFraming','messagingPillars','voiceToneRules','vocabularyDos'].forEach(field => {
+      if (c[field] === undefined) { c[field] = ''; dirty = true; }
+    });
+  });
+  if (dirty) saveData(appData);
 }
 
 function bootTranslatorForUrlClient(urlClient) {
